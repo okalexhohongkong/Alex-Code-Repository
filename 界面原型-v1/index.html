@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>黑卫士 AI 数字档案管理系统 1.0</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./local-icons.js" defer></script>
+    <script src="./archive-config.js" defer></script>
+    <script src="./archive-data.js" defer></script>
+    <script src="./archive-index-data.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="主菜单">
+        <div class="brand">
+          <div class="brand-mark">H</div>
+          <div>
+            <strong>黑卫士档案馆</strong>
+            <span>AI Archive 1.0</span>
+          </div>
+        </div>
+
+        <nav id="navList" class="nav-list" aria-label="系统一级菜单"></nav>
+
+        <div class="storage-panel">
+          <div class="storage-line">
+            <span>主库存储</span>
+            <strong>62.4T</strong>
+          </div>
+          <div class="meter">
+            <span style="width: 68%"></span>
+          </div>
+          <p>已索引 41.8T，待处理 20.6T</p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">公司 26 年数字资产驾驶舱</p>
+            <h1>AI 数字档案管理系统 1.0</h1>
+          </div>
+          <div class="top-actions">
+            <button id="appearanceToggle" class="tool-button" type="button" aria-expanded="false" aria-controls="appearancePanel">
+              <i data-lucide="palette"></i>
+              <span>界面设置</span>
+            </button>
+            <button class="icon-button" type="button" aria-label="通知">
+              <i data-lucide="bell"></i>
+            </button>
+            <button class="user-chip" type="button">
+              <span class="avatar">A</span>
+              <span>最高授权人</span>
+            </button>
+          </div>
+        </header>
+
+        <section id="appearancePanel" class="appearance-panel" hidden aria-label="界面设置">
+          <div class="settings-block color-settings">
+            <div>
+              <p class="eyebrow">颜色调色盘</p>
+              <h2>主题色</h2>
+            </div>
+            <div id="paletteRow" class="palette-row"></div>
+          </div>
+
+          <div class="settings-block custom-colors">
+            <label class="color-field">
+              <span>主色</span>
+              <input id="accentColorInput" type="color" value="#12756f" />
+            </label>
+            <label class="color-field">
+              <span>侧栏</span>
+              <input id="sidebarColorInput" type="color" value="#12201a" />
+            </label>
+            <label class="color-field">
+              <span>背景</span>
+              <input id="pageColorInput" type="color" value="#f5f6f2" />
+            </label>
+          </div>
+
+          <div class="settings-block typography-settings">
+            <label class="select-field">
+              <span>字体</span>
+              <select id="fontSelect"></select>
+            </label>
+            <label class="range-field">
+              <span>字号 <strong id="fontSizeValue">15px</strong></span>
+              <input id="fontSizeRange" type="range" min="13" max="18" value="15" />
+            </label>
+            <button id="resetAppearance" class="secondary-action" type="button">恢复默认</button>
+          </div>
+        </section>
+
+        <section class="command-center" aria-label="智能检索">
+          <div class="search-box">
+            <i data-lucide="search"></i>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="输入项目、公司、作者、文件内容，或直接用语音查档"
+              aria-label="智能检索"
+            />
+            <button id="voiceButton" class="voice-button" type="button" aria-label="语音检索">
+              <i data-lucide="mic"></i>
+              <span>语音</span>
+            </button>
+          </div>
+
+          <div class="keyword-panel" aria-label="项目、公司、部门、员工关键词检索">
+            <div class="keyword-title">
+              <div>
+                <p class="eyebrow">专门关键词入口</p>
+                <h2>按项目、公司、部门、员工、人事职能检索</h2>
+              </div>
+              <button id="clearFieldSearch" class="text-button" type="button">清空条件</button>
+            </div>
+            <div id="keywordGrid" class="keyword-grid"></div>
+          </div>
+
+          <div class="local-search-panel" aria-label="本机索引快搜">
+            <div class="keyword-title">
+              <div>
+                <p class="eyebrow">单机可用入口</p>
+                <h2>本机索引快搜</h2>
+              </div>
+              <button id="clearLocalSearch" class="text-button" type="button">清空快搜</button>
+            </div>
+            <div class="local-search-grid">
+              <label class="local-search-box">
+                <span>文件名/路径/格式</span>
+                <input id="localIndexSearchInput" type="search" placeholder="如：合同、PPT、app.js、PDF、项目进度" />
+              </label>
+              <button class="local-shortcut" type="button" data-local-query="md">Markdown</button>
+              <button class="local-shortcut" type="button" data-local-query="js">程序文件</button>
+              <button class="local-shortcut" type="button" data-local-query="项目进度">进度看板</button>
+              <button class="local-shortcut" type="button" data-local-query="验收">验收资料</button>
+            </div>
+          </div>
+
+          <div class="type-panel" aria-label="作品类型和文件格式检索">
+            <div class="keyword-title">
+              <div>
+                <p class="eyebrow">作品类型入口</p>
+                <h2>按方案、标书、图片、视频、录音、邮件、合同、PPT、Word、Excel、扫描件、标识文件检索</h2>
+              </div>
+              <label class="format-search">
+                <span>格式/扩展名</span>
+                <input id="formatInput" type="search" placeholder="如：PSD、AI、EML、XLSX、PDF、ZIP" />
+              </label>
+            </div>
+            <div id="typeChipRow" class="type-chip-row" aria-label="作品类型筛选"></div>
+          </div>
+
+          <div id="quickFilterRow" class="filter-row" aria-label="筛选条件"></div>
+        </section>
+
+        <section id="metricGrid" class="metric-grid" aria-label="资产概览"></section>
+
+        <section class="workspace-panel intake-panel" aria-label="多源采集入口">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">全介质采集入口</p>
+              <h2>手机、iPad、旧电脑、邮箱、云盘、NAS、U盘、SD卡、相机、摄像机统一归集</h2>
+            </div>
+            <span class="nas-target">最终归总：NAS 主库</span>
+          </div>
+          <div id="intakeSourceGrid" class="intake-source-grid"></div>
+          <div id="intakeSelected" class="intake-selected" aria-live="polite"></div>
+          <div class="intake-flow">
+            <div>
+              <p class="eyebrow">归集流水线</p>
+              <h2>先入 NAS 暂存区，再分类、去重、索引和 AI 候选</h2>
+            </div>
+            <div id="intakeWorkflow" class="intake-workflow"></div>
+          </div>
+        </section>
+
+        <div class="content-grid">
+          <section class="workspace-panel archive-panel" aria-label="档案检索结果">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">混合检索结果</p>
+                <h2>按公司、部门、作者、周期、评分归档</h2>
+              </div>
+              <div class="segmented">
+                <button class="active" type="button">列表</button>
+                <button type="button">时间轴</button>
+                <button type="button">关系图</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="archive-table">
+                <thead>
+                  <tr>
+                    <th>标题</th>
+                    <th>项目名称</th>
+                    <th>公司</th>
+                    <th>部门</th>
+                    <th>员工/作者</th>
+                    <th>负责人</th>
+                    <th>职能</th>
+                    <th>周期</th>
+                    <th>作品类型</th>
+                    <th>格式</th>
+                    <th>状态</th>
+                    <th>评分</th>
+                    <th>密级</th>
+                  </tr>
+                </thead>
+                <tbody id="resultBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="workspace-panel preview-panel" aria-label="媒体预览">
+            <div class="panel-heading compact">
+              <div>
+                <p class="eyebrow">媒体预览</p>
+                <h2 id="previewTitle">某汽车品牌发布会策划案</h2>
+              </div>
+              <span id="previewLevel" class="level-pill">L2</span>
+            </div>
+
+            <div id="previewFrame" class="preview-frame video-preview">
+              <div class="video-stage">
+                <button id="playButton" class="play-button" type="button" aria-label="播放预览">
+                  <i data-lucide="play"></i>
+                </button>
+                <div>
+                  <strong>发布会开场片段</strong>
+                  <span>00:30 嘉宾入场 · 01:20 产品亮相</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-meta" id="previewMeta"></div>
+
+            <div class="transcript-box">
+              <div class="transcript-title">
+                <span>转写/摘要</span>
+                <button class="text-button" type="button">生成纪要</button>
+              </div>
+              <p id="previewSummary">
+                该方案围绕汽车品牌发布会的开场视觉、传播节奏、现场动线和媒体邀约展开，缺少预算页和最终总结页，适合进入 AI 收尾池。
+              </p>
+            </div>
+
+            <div id="permissionStrip" class="permission-strip">
+              <button class="primary-action" type="button">申请复制</button>
+              <button class="secondary-action" type="button">查看关联资料</button>
+            </div>
+          </aside>
+        </div>
+
+        <section class="lower-grid" aria-label="工作队列">
+          <article class="workspace-panel finish-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">待收尾作品池</p>
+                <h2>AI 补全候选</h2>
+              </div>
+              <button class="text-button" type="button">进入评分中心</button>
+            </div>
+            <div id="finishList" class="finish-list"></div>
+          </article>
+
+          <article class="workspace-panel pipeline-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">数据运行 SOP</p>
+                <h2>今日自动索引流水线</h2>
+              </div>
+              <span class="status-dot">运行中</span>
+            </div>
+            <div class="pipeline">
+              <div class="pipe-step done">
+                <span>1</span>
+                <strong>硬盘登记</strong>
+                <small>12 块完成</small>
+              </div>
+              <div class="pipe-step done">
+                <span>2</span>
+                <strong>只读扫描</strong>
+                <small>4.8T</small>
+              </div>
+              <div class="pipe-step current">
+                <span>3</span>
+                <strong>OCR/转写</strong>
+                <small>1,274 个任务</small>
+              </div>
+              <div class="pipe-step">
+                <span>4</span>
+                <strong>AI 标签</strong>
+                <small>等待队列</small>
+              </div>
+              <div class="pipe-step">
+                <span>5</span>
+                <strong>备份快照</strong>
+                <small>23:30 执行</small>
+              </div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

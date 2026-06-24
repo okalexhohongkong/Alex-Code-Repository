@@ -1,0 +1,235 @@
+import { readFile } from "node:fs/promises";
+
+const requiredFiles = [
+  "界面原型-v1/index.html",
+  "界面原型-v1/styles.css",
+  "界面原型-v1/local-icons.js",
+  "界面原型-v1/archive-config.js",
+  "界面原型-v1/archive-data.js",
+  "界面原型-v1/archive-index-data.js",
+  "界面原型-v1/app.js",
+  "server.mjs",
+  "scan-local-index.mjs",
+  "scan-selected-folder.mjs",
+  "verify-local-demo.mjs",
+  "backup-index.mjs",
+  "health-check.mjs",
+  "start-demo.mjs",
+  "open-local-app.mjs",
+  "演示版使用说明.md",
+  "演示路线卡.md",
+  "单机版交付清单.md",
+  "真实硬盘接入SOP.md",
+  "多源存储接入与同步方案.md",
+  "项目进度看板.md",
+  "项目进度看板.html",
+];
+
+const requiredText = [
+  [
+    "界面原型-v1/index.html",
+    [
+      "local-icons.js",
+      "archive-config.js",
+      "archive-data.js",
+      "archive-index-data.js",
+      "app.js",
+      "颜色调色盘",
+      "界面设置",
+      "本机索引快搜",
+      "localIndexSearchInput",
+      "local-shortcut",
+      "全介质采集入口",
+      "intakeSourceGrid",
+      "intakeSelected",
+      "intakeWorkflow",
+      "手机",
+      "iPad",
+      "旧电脑",
+      "邮箱",
+      "云盘",
+      "NAS",
+      "U盘",
+      "SD卡",
+      "相机",
+      "摄像机",
+      "NAS 暂存区",
+    ],
+  ],
+  ["界面原型-v1/app.js", ["localIndexMatches", "clearLocalSearch", "local-shortcut"]],
+  [
+    "界面原型-v1/app.js",
+    [
+      "periodSearchText",
+      "assetStage",
+      "qualityLevel",
+      "securityLevelName",
+      "storageSourceType",
+      "accessMode",
+      "syncStrategy",
+      "crossCheckPolicy",
+      "storageRisk",
+      "storageCostLevel",
+      "L6 绝密",
+    ],
+  ],
+  [
+    "scan-local-index.mjs",
+    [
+      "本机只读扫描完成",
+      "archive-index.json",
+      "HWS_LOCAL_ARCHIVE_INDEX",
+      "L0 外部流通",
+      "L6 绝密",
+      "第三方云盘",
+      "局域网网盘/NAS",
+      "U盘/移动硬盘",
+      "SD卡",
+      "相机",
+      "摄像机",
+      "手机",
+      "iPad",
+      "邮箱",
+      "云盘",
+      "NAS 暂存区",
+      "accessMode",
+      "crossCheckPolicy",
+      "storageRisk",
+      "storageCostLevel",
+      "truncated",
+      "skippedEntries",
+      "sanitizeArchiveForBrowser",
+      "hasLocalPath",
+    ],
+  ],
+  ["scan-selected-folder.mjs", ["只读扫描入口", "choose folder", "不移动、不删除、不改名", "open-local-app.mjs"]],
+  ["界面原型-v1/local-icons.js", ["smartphone", "sd-card", "camera"]],
+  [
+    "verify-local-demo.mjs",
+    [
+      "单机版验收报告",
+      "格式分布",
+      "作品类型分布",
+      "完整状态分布",
+      "作品等级分布",
+      "存储来源分布",
+      "接入方式分布",
+      "同步策略分布",
+      "交叉校验分布",
+      "成本等级分布",
+      "扫描告警",
+      "浏览器索引使用脱敏数据",
+      "复制相对路径",
+    ],
+  ],
+  ["backup-index.mjs", ["备份快照", "snapshot-manifest.json"]],
+  ["health-check.mjs", ["健康检查通过", "/api/health", "浏览器脱敏索引"]],
+  ["start-demo.mjs", ["只读扫描并生成本机索引", "生成单机验收报告", "检查演示版完整性"]],
+  ["open-local-app.mjs", ["桌面入口", "findRunningServer", "acquireStartLock", "项目进度看板.html"]],
+  ["server.mjs", ["/api/health", "/api/reveal", "indexedPathById", "searchParams.get(\"id\")", "open"]],
+  ["界面原型-v1/archive-index-data.js", ["HWS_LOCAL_ARCHIVE_INDEX", "archives", "hasLocalPath"]],
+  [
+    "界面原型-v1/archive-config.js",
+    [
+      "项目/组织/人员检索",
+      "作品类型检索",
+      "公司类型",
+      "周期阶段",
+      "作品等级",
+      "存储来源",
+      "接入方式",
+      "同步策略",
+      "交叉校验",
+      "成本等级",
+      "方案/提案",
+      "标书/投标文件",
+      "intakeSources",
+      "intakeWorkflow",
+      "手机",
+      "iPad",
+      "旧电脑",
+      "邮箱",
+      "云盘",
+      "NAS",
+      "U盘",
+      "SD卡",
+      "相机",
+      "摄像机",
+      "NAS 暂存区",
+      "smartphone",
+      "sd-card",
+      "camera",
+      "人脸识别",
+      "appearance",
+    ],
+  ],
+  [
+    "界面原型-v1/archive-data.js",
+    [
+      "某汽车品牌发布会策划案",
+      "体育赛事运营服务投标文件",
+      "客户往来邮件归档",
+      "年度经营数据电子表格",
+    ],
+  ],
+  ["项目进度看板.md", ["甘特图", "1 天单机可用版", "每完成一个工作项", "并行模块总控表"]],
+  ["项目进度看板.html", ["项目管理看板", "甘特图", "进度表", "并行模块总控", "progress-badge", "pulse-normal"]],
+  ["演示路线卡.md", ["3 分钟演示路线", "本机索引快搜", "验收口径", "多源存储检索"]],
+  ["单机版交付清单.md", ["启动命令", "验收命令", "交付文件", "多源存储"]],
+  [
+    "真实硬盘接入SOP.md",
+    ["只读接入", "扫描前确认", "不移动、不删除、不改名", "模糊时间段的周期搜索", "L6 绝密", "多源接入范围"],
+  ],
+  [
+    "多源存储接入与同步方案.md",
+    [
+      "在线硬盘",
+      "云端云盘",
+      "局域网网盘",
+      "NAS",
+      "不同主机硬盘",
+      "U盘",
+      "接入方式",
+      "同步策略",
+      "交叉校验",
+      "成本等级",
+      "风险等级",
+    ],
+  ],
+];
+
+for (const file of requiredFiles) {
+  await readFile(file, "utf8");
+}
+
+for (const [file, needles] of requiredText) {
+  const content = await readFile(file, "utf8");
+  for (const needle of needles) {
+    if (!content.includes(needle)) {
+      throw new Error(`${file} 缺少：${needle}`);
+    }
+  }
+}
+
+const html = await readFile("界面原型-v1/index.html", "utf8");
+if (/https?:\/\//.test(html)) {
+  throw new Error("index.html 仍包含外网依赖，不适合作为离线演示版。");
+}
+
+const browserIndex = await readFile("界面原型-v1/archive-index-data.js", "utf8");
+if (/"path"\s*:/.test(browserIndex) || /\/Users\/|\/Volumes\/|[A-Za-z]:\\/.test(browserIndex)) {
+  throw new Error("浏览器索引仍包含本机完整路径，必须先脱敏。");
+}
+
+try {
+  const privateIndex = JSON.parse(await readFile("界面原型-v1/archive-index.json", "utf8"));
+  if (!("truncated" in privateIndex) || !("skippedCount" in privateIndex) || !("skippedEntries" in privateIndex)) {
+    throw new Error("本机索引缺少扫描上限或跳过条目元数据。");
+  }
+} catch (error) {
+  if (error.code !== "ENOENT") {
+    throw error;
+  }
+}
+
+console.log("演示版检查通过：文件完整、核心入口完整、无外网依赖。");

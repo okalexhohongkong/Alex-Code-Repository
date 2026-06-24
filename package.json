@@ -1,0 +1,20 @@
+{
+  "name": "hws-ai-archive-demo",
+  "version": "1.0.0-demo",
+  "private": true,
+  "description": "黑卫士 AI 数字档案管理系统可演示版本",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "demo": "node start-demo.mjs",
+    "scan": "node scan-local-index.mjs",
+    "scan:choose": "node scan-selected-folder.mjs",
+    "verify": "node verify-local-demo.mjs",
+    "backup": "node backup-index.mjs",
+    "health": "node health-check.mjs",
+    "open": "node open-local-app.mjs home",
+    "board": "node open-local-app.mjs board",
+    "test": "node check-demo.mjs"
+  }
+}
