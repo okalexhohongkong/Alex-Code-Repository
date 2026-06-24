@@ -7,10 +7,12 @@ const requiredFiles = [
   "界面原型-v1/archive-config.js",
   "界面原型-v1/archive-data.js",
   "界面原型-v1/archive-index-data.js",
+  "界面原型-v1/archive-batch-data.js",
   "界面原型-v1/app.js",
   "server.mjs",
   "scan-local-index.mjs",
   "scan-selected-folder.mjs",
+  "merge-indexes.mjs",
   "verify-local-demo.mjs",
   "backup-index.mjs",
   "health-check.mjs",
@@ -107,6 +109,7 @@ const requiredText = [
     ],
   ],
   ["scan-selected-folder.mjs", ["只读扫描入口", "choose folder", "不移动、不删除、不改名", "open-local-app.mjs"]],
+  ["merge-indexes.mjs", ["多目录合并索引", "duplicateCount", "HWS_MERGED_ARCHIVE_INDEX", "sanitizeArchiveForBrowser"]],
   ["界面原型-v1/local-icons.js", ["smartphone", "sd-card", "camera"]],
   [
     "verify-local-demo.mjs",
@@ -132,6 +135,7 @@ const requiredText = [
   ["open-local-app.mjs", ["桌面入口", "findRunningServer", "acquireStartLock", "项目进度看板.html"]],
   ["server.mjs", ["/api/health", "/api/reveal", "indexedPathById", "searchParams.get(\"id\")", "open"]],
   ["界面原型-v1/archive-index-data.js", ["HWS_LOCAL_ARCHIVE_INDEX", "archives", "hasLocalPath"]],
+  ["界面原型-v1/archive-batch-data.js", ["HWS_LATEST_SCAN_BATCH", "batchId", "scanPolicy", "aiGate"]],
   [
     "界面原型-v1/archive-config.js",
     [

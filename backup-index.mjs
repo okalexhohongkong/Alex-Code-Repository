@@ -6,6 +6,8 @@ const backupDir = resolve("备份快照", timestamp);
 const files = [
   "界面原型-v1/archive-index.json",
   "界面原型-v1/archive-index-data.js",
+  "界面原型-v1/archive-batch-data.js",
+  "界面原型-v1/archive-merged-index-data.js",
   "项目进度看板.md",
   "项目进度看板.html",
   "多源存储接入与同步方案.md",

@@ -4,9 +4,10 @@ import { basename, extname, join, relative, resolve } from "node:path";
 const projectRoot = resolve(".");
 const scanRoot = resolve(process.argv[2] || ".");
 const outputDir = resolve(projectRoot, "界面原型-v1");
+const batchReportDir = resolve(projectRoot, "批次报告");
 const maxFiles = Number(process.env.MAX_SCAN_FILES || 20000);
 
-const ignoredDirs = new Set([".git", "node_modules", ".cache", "dist", "build", "备份快照"]);
+const ignoredDirs = new Set([".git", "node_modules", ".cache", "dist", "build", "备份快照", "批次报告"]);
 const ignoredFiles = new Set([".DS_Store", "archive-index.json", "archive-index-data.js"]);
 const skippedEntries = [];
 const maxSkippedExamples = 50;
@@ -36,6 +37,40 @@ function formatSize(bytes) {
     index += 1;
   }
   return `${value.toFixed(value >= 10 || index === 0 ? 0 : 1)}${units[index]}`;
+}
+
+function countBy(items, key) {
+  return items.reduce((counts, item) => {
+    const value = item[key] || "未识别";
+    counts[value] = (counts[value] || 0) + 1;
+    return counts;
+  }, {});
+}
+
+function topCount(counts) {
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "未识别";
+}
+
+function batchPrefixFor(sourceType) {
+  const pairs = [
+    [/手机/, "MOB"],
+    [/iPad|平板/, "TAB"],
+    [/邮箱/, "MAIL"],
+    [/云/, "CLOUD"],
+    [/NAS|网盘/, "NAS"],
+    [/U盘|移动硬盘|外接硬盘/, "USB"],
+    [/SD卡|相机|摄像机/, "CARD"],
+    [/不同主机|主机/, "PC"],
+  ];
+  return pairs.find(([pattern]) => pattern.test(sourceType))?.[1] || "LOCAL";
+}
+
+function tableRows(counts) {
+  const rows = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => `| ${name} | ${count} |`)
+    .join("\n");
+  return rows || "| 无 | 0 |";
 }
 
 function extensionOf(filePath) {
@@ -442,6 +477,118 @@ const index = {
   archives,
 };
 
+function makeBatchReport(indexData) {
+  const generatedAt = indexData.generatedAt;
+  const dateCode = generatedAt.slice(0, 16).replace(/[-:T]/g, "");
+  const storageSourceCounts = countBy(indexData.archives, "storageSourceType");
+  const accessModeCounts = countBy(indexData.archives, "accessMode");
+  const workTypeCounts = countBy(indexData.archives, "workType");
+  const formatCounts = countBy(indexData.archives, "format");
+  const securityCounts = countBy(indexData.archives, "securityLevelName");
+  const riskCounts = countBy(indexData.archives, "storageRisk");
+  const sourceType = topCount(storageSourceCounts);
+  const batchPrefix = process.env.HWS_BATCH_PREFIX || batchPrefixFor(sourceType);
+  const batchId = process.env.HWS_BATCH_ID || `${batchPrefix}-${dateCode}`;
+  const defaultSecurity = topCount(securityCounts);
+  const summary = {
+    batchId,
+    generatedAt,
+    root: indexData.root,
+    rootLabel: indexData.rootLabel,
+    sourceType,
+    defaultSecurity,
+    totalFiles: indexData.totalFiles,
+    totalSize: indexData.totalSize,
+    totalSizeLabel: indexData.totalSizeLabel,
+    truncated: indexData.truncated,
+    skippedCount: indexData.skippedCount,
+    maxFiles: indexData.maxFiles,
+    scanPolicy: "只读扫描，不移动、不删除、不改名真实文件。",
+    nasGate: "本批次只生成索引和报告；完整采集到 NAS 暂存区需要授权。",
+    aiGate: "L4-L6 默认不进入 AI 训练；图片人脸识别必须单独授权。",
+    distributions: {
+      storageSource: storageSourceCounts,
+      accessMode: accessModeCounts,
+      workType: workTypeCounts,
+      format: formatCounts,
+      security: securityCounts,
+      risk: riskCounts,
+    },
+    skippedEntries: indexData.skippedEntries,
+  };
+
+  const publicSummary = {
+    ...summary,
+    root: undefined,
+    skippedEntries: indexData.skippedEntries,
+    hasPrivatePath: true,
+  };
+  delete publicSummary.root;
+
+  const markdown = `# 黑卫士 AI 数字档案扫描批次报告
+
+生成时间：${generatedAt.slice(0, 16).replace("T", " ")}
+
+## 批次结论
+
+| 项目 | 结果 |
+|---|---:|
+| 批次编号 | ${batchId} |
+| 扫描根目录 | ${indexData.root} |
+| 浏览器显示名称 | ${indexData.rootLabel} |
+| 主要来源 | ${sourceType} |
+| 默认密级 | ${defaultSecurity} |
+| 文件数量 | ${indexData.totalFiles} |
+| 总体积 | ${indexData.totalSizeLabel} |
+| 扫描上限 | ${indexData.truncated ? "达到上限，需分批补扫" : "未达到上限"} |
+| 跳过条目 | ${indexData.skippedCount} |
+
+## 安全边界
+
+- ${summary.scanPolicy}
+- ${summary.nasGate}
+- ${summary.aiGate}
+
+## 存储来源分布
+
+| 类型 | 数量 |
+|---|---:|
+${tableRows(storageSourceCounts)}
+
+## 接入方式分布
+
+| 类型 | 数量 |
+|---|---:|
+${tableRows(accessModeCounts)}
+
+## 作品类型分布
+
+| 类型 | 数量 |
+|---|---:|
+${tableRows(workTypeCounts)}
+
+## 格式分布
+
+| 类型 | 数量 |
+|---|---:|
+${tableRows(formatCounts)}
+
+## 密级分布
+
+| 类型 | 数量 |
+|---|---:|
+${tableRows(securityCounts)}
+
+## 风险分布
+
+| 类型 | 数量 |
+|---|---:|
+${tableRows(riskCounts)}
+`;
+
+  return { summary, publicSummary, markdown };
+}
+
 function sanitizeArchiveForBrowser(item) {
   const { path, ...publicItem } = item;
   return {
@@ -464,17 +611,28 @@ const browserIndex = {
   skippedEntries: index.skippedEntries,
   archives: archives.map(sanitizeArchiveForBrowser),
 };
+const batchReport = makeBatchReport(index);
 
 await mkdir(outputDir, { recursive: true });
+await mkdir(batchReportDir, { recursive: true });
 await writeFile(join(outputDir, "archive-index.json"), `${JSON.stringify(index, null, 2)}\n`, "utf8");
 await writeFile(
   join(outputDir, "archive-index-data.js"),
   `window.HWS_LOCAL_ARCHIVE_INDEX = ${JSON.stringify(browserIndex, null, 2).replace(/</g, "\\u003c")};\n`,
   "utf8",
 );
+await writeFile(
+  join(outputDir, "archive-batch-data.js"),
+  `window.HWS_LATEST_SCAN_BATCH = ${JSON.stringify(batchReport.publicSummary, null, 2).replace(/</g, "\\u003c")};\n`,
+  "utf8",
+);
+await writeFile(join(batchReportDir, `${batchReport.summary.batchId}.json`), `${JSON.stringify(batchReport.summary, null, 2)}\n`, "utf8");
+await writeFile(join(batchReportDir, `${batchReport.summary.batchId}.md`), batchReport.markdown, "utf8");
 
 console.log(`本机只读扫描完成：${archives.length} 个文件，${formatSize(totalSize)}`);
 if (truncated) console.log(`提示：已达到扫描上限 ${maxFiles}，当前索引不是全量。`);
 if (skippedCount) console.log(`提示：跳过 ${skippedCount} 个无法读取的目录或文件，详情见索引元数据。`);
 console.log(`索引文件：${join(outputDir, "archive-index.json")}`);
 console.log(`页面数据：${join(outputDir, "archive-index-data.js")}`);
+console.log(`批次摘要：${join(outputDir, "archive-batch-data.js")}`);
+console.log(`批次报告：${join(batchReportDir, `${batchReport.summary.batchId}.md`)}`);

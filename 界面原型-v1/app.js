@@ -2,6 +2,7 @@
   const config = window.HWS_ARCHIVE_CONFIG;
   const data = window.HWS_ARCHIVE_DATA;
   const localIndex = window.HWS_LOCAL_ARCHIVE_INDEX;
+  const latestBatch = window.HWS_LATEST_SCAN_BATCH;
 
   if (!config || !data) {
     throw new Error("Archive prototype config or data is missing.");
@@ -439,7 +440,11 @@
             value: localIndex.truncated ? "非全量" : String(localIndex.skippedCount || 0),
             note: localIndex.truncated ? "已达到扫描上限，需分批补扫" : "跳过文件/目录数量",
           },
-          { label: "演示数据模式", value: "真实索引", note: "当前优先读取本机扫描结果" },
+          {
+            label: "最新批次",
+            value: latestBatch?.batchId || "真实索引",
+            note: latestBatch?.defaultSecurity ? `默认密级：${latestBatch.defaultSecurity}` : "当前优先读取本机扫描结果",
+          },
         ]
       : config.metrics;
 

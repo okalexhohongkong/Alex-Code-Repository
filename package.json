@@ -10,6 +10,7 @@
     "demo": "node start-demo.mjs",
     "scan": "node scan-local-index.mjs",
     "scan:choose": "node scan-selected-folder.mjs",
+    "merge": "node merge-indexes.mjs",
     "verify": "node verify-local-demo.mjs",
     "backup": "node backup-index.mjs",
     "health": "node health-check.mjs",

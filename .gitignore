@@ -5,5 +5,7 @@ node_modules/
 *.log
 .hws-start.lock/
 备份快照/
+批次报告/
 单机版验收报告.md
 界面原型-v1/archive-index.json
+界面原型-v1/archive-merged-index.json
