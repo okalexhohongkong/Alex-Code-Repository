@@ -22,6 +22,14 @@ const mimeTypes = {
   ".md": "text/markdown; charset=utf-8",
 };
 
+function redirect(response, location) {
+  response.writeHead(302, {
+    Location: encodeURI(location),
+    "Cache-Control": "no-store",
+  });
+  response.end();
+}
+
 async function indexedPathById() {
   try {
     const indexPath = join(root, "界面原型-v1/archive-index.json");
@@ -71,6 +79,11 @@ function safePath(urlPath) {
 
 const server = createServer(async (request, response) => {
   try {
+    if ((request.url || "/").split("?")[0] === "/") {
+      redirect(response, "/界面原型-v1/index.html");
+      return;
+    }
+
     if ((request.url || "").startsWith("/api/health")) {
       const result = await localIndexSummary();
       response.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
