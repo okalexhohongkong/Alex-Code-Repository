@@ -3,3 +3,10 @@ node_modules/
 .env
 .env.*
 .hws-start.lock/
+
+# 本机真实扫描产物：可能包含绝对路径或本地文件结构，不推送远程仓库。
+界面原型-v1/archive-index.json
+界面原型-v1/archive-merged-index.json
+批次报告/
+备份快照/
+单机版验收报告.md

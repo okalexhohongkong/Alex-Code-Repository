@@ -40,9 +40,22 @@ async function indexedPathById() {
   }
 }
 
+async function readBrowserIndex() {
+  const indexDataPath = join(root, "界面原型-v1/archive-index-data.js");
+  const content = await readFile(indexDataPath, "utf8");
+  const match = content.match(/window\.HWS_LOCAL_ARCHIVE_INDEX\s*=\s*(\{[\s\S]*\});?\s*$/);
+  return match ? JSON.parse(match[1]) : {};
+}
+
 async function localIndexSummary() {
-  const indexPath = join(root, "界面原型-v1/archive-index.json");
-  const index = JSON.parse(await readFile(indexPath, "utf8"));
+  let index;
+  try {
+    const indexPath = join(root, "界面原型-v1/archive-index.json");
+    index = JSON.parse(await readFile(indexPath, "utf8"));
+  } catch {
+    index = await readBrowserIndex();
+  }
+
   return {
     ok: true,
     generatedAt: index.generatedAt,

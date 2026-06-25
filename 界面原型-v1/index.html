@@ -10,6 +10,8 @@
     <script src="./archive-data.js" defer></script>
     <script src="./archive-index-data.js" defer></script>
     <script src="./archive-batch-data.js" defer></script>
+    <script src="./archive-batch-history-data.js" defer></script>
+    <script src="./archive-merged-index-data.js" defer></script>
     <script src="./app.js" defer></script>
   </head>
   <body>
@@ -177,6 +179,17 @@
             </div>
             <div id="intakeWorkflow" class="intake-workflow"></div>
           </div>
+        </section>
+
+        <section class="workspace-panel batch-history-panel" aria-label="扫描批次历史">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">批次历史看板</p>
+              <h2>按批次追踪来源、数量、体积、密级、风险和合并索引</h2>
+            </div>
+            <span id="batchHistoryStatus" class="nas-target">等待批次</span>
+          </div>
+          <div id="batchHistoryList" class="batch-history-list"></div>
         </section>
 
         <div class="content-grid">

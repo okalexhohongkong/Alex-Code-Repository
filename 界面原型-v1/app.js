@@ -3,6 +3,8 @@
   const data = window.HWS_ARCHIVE_DATA;
   const localIndex = window.HWS_LOCAL_ARCHIVE_INDEX;
   const latestBatch = window.HWS_LATEST_SCAN_BATCH;
+  const batchHistory = Array.isArray(window.HWS_SCAN_BATCH_HISTORY) ? window.HWS_SCAN_BATCH_HISTORY : [];
+  const mergedIndex = window.HWS_MERGED_ARCHIVE_INDEX;
 
   if (!config || !data) {
     throw new Error("Archive prototype config or data is missing.");
@@ -28,6 +30,8 @@
     intakeSourceGrid: document.querySelector("#intakeSourceGrid"),
     intakeSelected: document.querySelector("#intakeSelected"),
     intakeWorkflow: document.querySelector("#intakeWorkflow"),
+    batchHistoryStatus: document.querySelector("#batchHistoryStatus"),
+    batchHistoryList: document.querySelector("#batchHistoryList"),
     resultBody: document.querySelector("#resultBody"),
     searchInput: document.querySelector("#searchInput"),
     localIndexSearchInput: document.querySelector("#localIndexSearchInput"),
@@ -529,6 +533,8 @@
       )
       .join("");
 
+    renderBatchHistory();
+
     dom.tableHeadRow.innerHTML = config.tableColumns
       .map((column) => `<th>${escapeHtml(column.label)}</th>`)
       .join("");
@@ -952,6 +958,70 @@
         `,
       )
       .join("");
+  }
+
+  function topDistributionName(distribution = {}) {
+    return Object.entries(distribution).sort((a, b) => b[1] - a[1])[0]?.[0] || "未识别";
+  }
+
+  function renderBatchHistory() {
+    if (!dom.batchHistoryList) return;
+    const batches = batchHistory.length ? batchHistory : latestBatch ? [latestBatch] : [];
+    if (dom.batchHistoryStatus) {
+      dom.batchHistoryStatus.textContent = batches.length ? `已记录 ${batches.length} 个批次` : "等待批次";
+    }
+
+    if (!batches.length) {
+      dom.batchHistoryList.innerHTML = `
+        <div class="batch-empty">
+          <strong>暂无扫描批次</strong>
+          <span>双击桌面“黑卫士AI只读扫描文件夹.command”后，会在这里显示批次历史。</span>
+        </div>
+      `;
+      return;
+    }
+
+    const mergedCard = mergedIndex
+      ? `
+        <article class="batch-card merged">
+          <div class="batch-card-head">
+            <strong>多目录合并索引</strong>
+            <em>${escapeHtml(mergedIndex.sourceCount || 0)} 个来源</em>
+          </div>
+          <div class="batch-card-grid">
+            <span><b>合并文件</b>${escapeHtml(mergedIndex.totalFiles || 0)}</span>
+            <span><b>总体积</b>${escapeHtml(mergedIndex.totalSizeLabel || "--")}</span>
+            <span><b>重复跳过</b>${escapeHtml(mergedIndex.duplicateCount || 0)}</span>
+            <span><b>扫描告警</b>${mergedIndex.truncated ? "有上限截断" : `跳过 ${escapeHtml(mergedIndex.skippedCount || 0)} 项`}</span>
+          </div>
+        </article>
+      `
+      : "";
+
+    dom.batchHistoryList.innerHTML = [
+      ...batches.map((batch) => {
+        const risk = topDistributionName(batch.distributions?.risk);
+        const workType = topDistributionName(batch.distributions?.workType);
+        return `
+          <article class="batch-card">
+            <div class="batch-card-head">
+              <strong>${escapeHtml(batch.batchId)}</strong>
+              <em>${escapeHtml((batch.generatedAt || "").slice(0, 16).replace("T", " "))}</em>
+            </div>
+            <div class="batch-card-grid">
+              <span><b>来源</b>${escapeHtml(batch.sourceType || batch.rootLabel || "未识别")}</span>
+              <span><b>文件数量</b>${escapeHtml(batch.totalFiles || 0)}</span>
+              <span><b>总体积</b>${escapeHtml(batch.totalSizeLabel || "--")}</span>
+              <span><b>默认密级</b>${escapeHtml(batch.defaultSecurity || "待复核")}</span>
+              <span><b>主要类型</b>${escapeHtml(workType)}</span>
+              <span><b>风险</b>${escapeHtml(risk)}</span>
+            </div>
+            <p>${escapeHtml(batch.scanPolicy || "只读扫描，不移动、不删除、不改名真实文件。")}</p>
+          </article>
+        `;
+      }),
+      mergedCard,
+    ].join("");
   }
 
   function renderSelectedIntake(source) {

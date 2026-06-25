@@ -1,4 +1,4 @@
-import { mkdir, readdir, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { basename, extname, join, relative, resolve } from "node:path";
 
 const projectRoot = resolve(".");
@@ -71,6 +71,16 @@ function tableRows(counts) {
     .map(([name, count]) => `| ${name} | ${count} |`)
     .join("\n");
   return rows || "| 无 | 0 |";
+}
+
+async function readExistingBatchHistory(historyPath) {
+  try {
+    const content = await readFile(historyPath, "utf8");
+    const match = content.match(/window\.HWS_SCAN_BATCH_HISTORY\s*=\s*(\[[\s\S]*\]);?\s*$/);
+    return match ? JSON.parse(match[1]) : [];
+  } catch {
+    return [];
+  }
 }
 
 function extensionOf(filePath) {
@@ -612,6 +622,12 @@ const browserIndex = {
   archives: archives.map(sanitizeArchiveForBrowser),
 };
 const batchReport = makeBatchReport(index);
+const batchHistoryPath = join(outputDir, "archive-batch-history-data.js");
+const existingBatchHistory = await readExistingBatchHistory(batchHistoryPath);
+const batchHistory = [
+  batchReport.publicSummary,
+  ...existingBatchHistory.filter((item) => item.batchId !== batchReport.publicSummary.batchId),
+].slice(0, 50);
 
 await mkdir(outputDir, { recursive: true });
 await mkdir(batchReportDir, { recursive: true });
@@ -626,6 +642,11 @@ await writeFile(
   `window.HWS_LATEST_SCAN_BATCH = ${JSON.stringify(batchReport.publicSummary, null, 2).replace(/</g, "\\u003c")};\n`,
   "utf8",
 );
+await writeFile(
+  batchHistoryPath,
+  `window.HWS_SCAN_BATCH_HISTORY = ${JSON.stringify(batchHistory, null, 2).replace(/</g, "\\u003c")};\n`,
+  "utf8",
+);
 await writeFile(join(batchReportDir, `${batchReport.summary.batchId}.json`), `${JSON.stringify(batchReport.summary, null, 2)}\n`, "utf8");
 await writeFile(join(batchReportDir, `${batchReport.summary.batchId}.md`), batchReport.markdown, "utf8");
 
@@ -635,4 +656,5 @@ if (skippedCount) console.log(`提示：跳过 ${skippedCount} 个无法读取�
 console.log(`索引文件：${join(outputDir, "archive-index.json")}`);
 console.log(`页面数据：${join(outputDir, "archive-index-data.js")}`);
 console.log(`批次摘要：${join(outputDir, "archive-batch-data.js")}`);
+console.log(`批次历史：${batchHistoryPath}`);
 console.log(`批次报告：${join(batchReportDir, `${batchReport.summary.batchId}.md`)}`);
