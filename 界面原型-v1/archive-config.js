@@ -193,6 +193,51 @@ window.HWS_ARCHIVE_CONFIG = {
     { step: "05", title: "NAS/AI 分流", detail: "授权资料进 NAS 暂存区；低密级资料再进入 OCR、转写、抽帧候选" },
   ],
 
+  sampleValidationChecklist: [
+    {
+      step: "01",
+      title: "接入前登记",
+      owner: "项目负责人",
+      gate: "确认来源人、设备类型、公司/部门/项目、默认密级和授权范围",
+      output: "样本批次编号、来源说明、隐私排除目录、负责人",
+    },
+    {
+      step: "02",
+      title: "只读试扫",
+      owner: "技术/档案管理员",
+      gate: "只扫描 1 个小目录或 1 个设备样本，不移动、不删除、不改名",
+      output: "文件数量、体积、格式分布、不可读条目、耗时记录",
+    },
+    {
+      step: "03",
+      title: "风险复核",
+      owner: "部门负责人",
+      gate: "检查 L4-L6、财务、人事、合同、隐私、密钥、未知来源文件",
+      output: "禁训清单、隔离候选、高密级候选、人工复核意见",
+    },
+    {
+      step: "04",
+      title: "批次报告",
+      owner: "档案管理员",
+      gate: "确认批次摘要、批次历史、合并索引和浏览器脱敏索引一致",
+      output: "批次报告、脱敏页面数据、合并索引摘要",
+    },
+    {
+      step: "05",
+      title: "NAS/AI 分流",
+      owner: "最高授权人/系统管理员",
+      gate: "授权后才进入 NAS 暂存区；L4-L6 不进公有云、不进 AI 训练",
+      output: "NAS 暂存位置、AI 候选清单、禁训清单",
+    },
+    {
+      step: "06",
+      title: "扩大接入",
+      owner: "项目主理人",
+      gate: "样本验证通过后，按公司、部门、年份或设备分批扩大",
+      output: "下一批扫描范围、预计体量、负责人、回滚方案",
+    },
+  ],
+
   fieldSearches: [
     { field: "companyType", label: "公司类型", placeholder: "如：项目公司、集团公司" },
     { field: "project", label: "项目名称", placeholder: "如：汽车品牌发布会" },

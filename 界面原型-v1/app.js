@@ -32,6 +32,8 @@
     intakeWorkflow: document.querySelector("#intakeWorkflow"),
     batchHistoryStatus: document.querySelector("#batchHistoryStatus"),
     batchHistoryList: document.querySelector("#batchHistoryList"),
+    sampleValidationStatus: document.querySelector("#sampleValidationStatus"),
+    sampleValidationList: document.querySelector("#sampleValidationList"),
     resultBody: document.querySelector("#resultBody"),
     searchInput: document.querySelector("#searchInput"),
     localIndexSearchInput: document.querySelector("#localIndexSearchInput"),
@@ -534,6 +536,7 @@
       .join("");
 
     renderBatchHistory();
+    renderSampleValidation();
 
     dom.tableHeadRow.innerHTML = config.tableColumns
       .map((column) => `<th>${escapeHtml(column.label)}</th>`)
@@ -1022,6 +1025,32 @@
       }),
       mergedCard,
     ].join("");
+  }
+
+  function renderSampleValidation() {
+    if (!dom.sampleValidationList) return;
+    const checklist = Array.isArray(config.sampleValidationChecklist) ? config.sampleValidationChecklist : [];
+    if (dom.sampleValidationStatus) {
+      dom.sampleValidationStatus.textContent = checklist.length ? `${checklist.length} 步待点验` : "等待流程";
+    }
+
+    dom.sampleValidationList.innerHTML = checklist
+      .map(
+        (item) => `
+          <article class="validation-card">
+            <div class="validation-step">${escapeHtml(item.step)}</div>
+            <div>
+              <h3>${escapeHtml(item.title)}</h3>
+              <p>${escapeHtml(item.gate)}</p>
+              <div class="validation-meta">
+                <span><b>责任人</b>${escapeHtml(item.owner)}</span>
+                <span><b>输出物</b>${escapeHtml(item.output)}</span>
+              </div>
+            </div>
+          </article>
+        `,
+      )
+      .join("");
   }
 
   function renderSelectedIntake(source) {
