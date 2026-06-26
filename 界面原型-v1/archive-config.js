@@ -264,6 +264,15 @@ window.HWS_ARCHIVE_CONFIG = {
     { title: "负责人签字", detail: "扫描报告、批次摘要、下一批范围必须由负责人确认。", status: "必须通过" },
   ],
 
+  sampleResultDecisionTitle: "点验结果判定表",
+  sampleResultDecisions: [
+    { result: "通过", next: "进入下一批只读扫描", rule: "报告完整、路径脱敏、无高风险阻塞、负责人确认。", color: "go" },
+    { result: "待补充", next: "补登记或补授权", rule: "来源、负责人、项目、时间段、隐私排除或密级信息不完整。", color: "wait" },
+    { result: "隔离", next: "进入隔离候选区", rule: "未知来源、疑似病毒、密钥、账号、合同、人事或财务高敏候选。", color: "hold" },
+    { result: "暂停", next: "停止扩大扫描", rule: "发现权限不清、路径暴露、读取异常集中或负责人未确认。", color: "stop" },
+    { result: "扩大下一批", next: "按公司/部门/年份/设备扩展", rule: "样本稳定、分类准确、风险可控、NAS/AI 分流边界明确。", color: "go" },
+  ],
+
   fieldSearches: [
     { field: "companyType", label: "公司类型", placeholder: "如：项目公司、集团公司" },
     { field: "project", label: "项目名称", placeholder: "如：汽车品牌发布会" },

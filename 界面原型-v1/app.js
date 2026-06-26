@@ -36,6 +36,7 @@
     sampleValidationList: document.querySelector("#sampleValidationList"),
     sampleValidationForm: document.querySelector("#sampleValidationForm"),
     samplePreflightList: document.querySelector("#samplePreflightList"),
+    sampleDecisionList: document.querySelector("#sampleDecisionList"),
     resultBody: document.querySelector("#resultBody"),
     searchInput: document.querySelector("#searchInput"),
     localIndexSearchInput: document.querySelector("#localIndexSearchInput"),
@@ -1034,9 +1035,10 @@
     const checklist = Array.isArray(config.sampleValidationChecklist) ? config.sampleValidationChecklist : [];
     const fields = Array.isArray(config.sampleValidationFields) ? config.sampleValidationFields : [];
     const preflightChecks = Array.isArray(config.samplePreflightChecks) ? config.samplePreflightChecks : [];
+    const decisions = Array.isArray(config.sampleResultDecisions) ? config.sampleResultDecisions : [];
     if (dom.sampleValidationStatus) {
       dom.sampleValidationStatus.textContent = checklist.length
-        ? `${checklist.length} 步流程 · ${fields.length} 项登记 · ${preflightChecks.length} 项检查`
+        ? `${checklist.length} 步流程 · ${fields.length} 项登记 · ${preflightChecks.length} 项检查 · ${decisions.length} 个结果`
         : "等待流程";
     }
 
@@ -1098,6 +1100,30 @@
                 <strong>${escapeHtml(check.title)}</strong>
                 <p>${escapeHtml(check.detail)}</p>
                 <em>${escapeHtml(check.status)}</em>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
+    `;
+
+    if (!dom.sampleDecisionList) return;
+    dom.sampleDecisionList.innerHTML = `
+      <div class="sample-form-head">
+        <div>
+          <p class="eyebrow">点验结果判定表</p>
+          <h3>样本跑完以后，只能进入这几个结果</h3>
+        </div>
+        <span>结果决定下一步</span>
+      </div>
+      <div class="decision-grid">
+        ${decisions
+          .map(
+            (decision) => `
+              <article class="decision-card ${escapeHtml(decision.color)}">
+                <strong>${escapeHtml(decision.result)}</strong>
+                <p>${escapeHtml(decision.rule)}</p>
+                <em>${escapeHtml(decision.next)}</em>
               </article>
             `,
           )
