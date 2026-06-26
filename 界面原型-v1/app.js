@@ -15,11 +15,137 @@
   const archives = sourceArchives.map(enrichArchive);
   const { finishItems } = data;
   const usingLocalIndex = localArchives.length > 0;
+  const layoutStorageKeys = {
+    menuOrder: "hws-archive-menu-order-v1",
+    secondaryMenus: "hws-archive-secondary-menus-v1",
+    menuModuleMap: "hws-archive-menu-module-map-v1",
+    moduleLayouts: "hws-archive-module-layouts-v1",
+  };
+  const moduleSizeOptions = [
+    { key: "compact", label: "等比-", icon: "minimize-2" },
+    { key: "normal", label: "默认", icon: "rows-3" },
+    { key: "wide", label: "变宽", icon: "stretch-horizontal" },
+    { key: "long", label: "变长", icon: "stretch-vertical" },
+    { key: "large", label: "等比+", icon: "maximize-2" },
+  ];
+
+  function readJson(key, fallback) {
+    try {
+      const text = localStorage.getItem(key);
+      return text ? JSON.parse(text) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function writeJson(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Local persistence is a demo enhancement, not a hard dependency.
+    }
+  }
+
+  function moduleIds() {
+    return (config.moduleCatalog || []).map((item) => item.id);
+  }
+
+  function isValidModuleId(moduleId) {
+    return moduleIds().includes(moduleId);
+  }
+
+  function normalizeModuleIdList(ids) {
+    const valid = new Set(moduleIds());
+    return Array.from(new Set((ids || []).filter((id) => valid.has(id))));
+  }
+
+  function loadMenuOrder() {
+    const sections = (config.navItems || []).map((item) => item.section);
+    const saved = Array.isArray(readJson(layoutStorageKeys.menuOrder, []))
+      ? readJson(layoutStorageKeys.menuOrder, [])
+      : [];
+    return [...saved.filter((section) => sections.includes(section)), ...sections.filter((section) => !saved.includes(section))];
+  }
+
+  function normalizeMenuItem(item, index = 0) {
+    if (typeof item === "string") {
+      return {
+        id: `item-${index}-${item}`,
+        label: item,
+        moduleId: "command",
+        query: item,
+      };
+    }
+    const label = item?.label || item?.title || `二级材料 ${index + 1}`;
+    const moduleId = isValidModuleId(item?.moduleId) ? item.moduleId : "command";
+    return {
+      id: item?.id || `${moduleId}-${label}`,
+      label,
+      moduleId,
+      query: item?.query ?? label,
+    };
+  }
+
+  function normalizeSecondaryMenu(menu, navItem) {
+    return {
+      section: navItem.section,
+      title: menu?.title || navItem.label,
+      hint: menu?.hint || "已关联页面模块",
+      items: (menu?.items || []).map((item, index) => normalizeMenuItem(item, index)),
+    };
+  }
+
+  function loadSecondaryMenus() {
+    const saved = Array.isArray(readJson(layoutStorageKeys.secondaryMenus, []))
+      ? readJson(layoutStorageKeys.secondaryMenus, [])
+      : [];
+    const configured = Array.isArray(config.secondaryMenus) ? config.secondaryMenus : [];
+    return (config.navItems || []).map((navItem) => {
+      const base = configured.find((menu) => menu.section === navItem.section) || {};
+      const savedMenu = saved.find((menu) => menu.section === navItem.section);
+      return normalizeSecondaryMenu(savedMenu ? { ...base, ...savedMenu } : base, navItem);
+    });
+  }
+
+  function loadMenuModuleMap() {
+    const saved = readJson(layoutStorageKeys.menuModuleMap, {});
+    const configured = config.menuModuleMap || {};
+    return Object.fromEntries(
+      (config.navItems || []).map((navItem) => {
+        const moduleIdsForMenu = normalizeModuleIdList(saved?.[navItem.section] || configured[navItem.section]);
+        return [navItem.section, moduleIdsForMenu.length ? moduleIdsForMenu : ["command"]];
+      }),
+    );
+  }
+
+  function loadModuleLayouts() {
+    const saved = readJson(layoutStorageKeys.moduleLayouts, {});
+    const validSizes = new Set(moduleSizeOptions.map((item) => item.key));
+    return Object.fromEntries(
+      (config.moduleCatalog || []).map((module) => {
+        const size = validSizes.has(saved?.[module.id]?.size) ? saved[module.id].size : module.defaultSize || "normal";
+        return [
+          module.id,
+          {
+            size,
+            locked: Boolean(saved?.[module.id]?.locked),
+          },
+        ];
+      }),
+    );
+  }
+
   const state = {
     activeFilter: "all",
     activeWorkType: "all",
+    activeSection: config.navItems?.find((item) => item.active)?.section || config.navItems?.[0]?.section || "dashboard",
     activeRole: config.roles?.[0]?.key || "owner",
     enabledModules: Object.fromEntries((config.modules || []).map((item) => [item.key, item.enabled !== false])),
+    menuOrder: loadMenuOrder(),
+    secondaryMenus: loadSecondaryMenus(),
+    menuModuleMap: loadMenuModuleMap(),
+    moduleLayouts: loadModuleLayouts(),
+    dragPayload: null,
     selectedId: archives[0]?.id || "",
   };
 
@@ -39,6 +165,12 @@
     fileTypeCount: document.querySelector("#fileTypeCount"),
     fileTypeLibrary: document.querySelector("#fileTypeLibrary"),
     formulaDemoGrid: document.querySelector("#formulaDemoGrid"),
+    layoutScopeBadge: document.querySelector("#layoutScopeBadge"),
+    activeRouteTitle: document.querySelector("#activeRouteTitle"),
+    activeRouteCount: document.querySelector("#activeRouteCount"),
+    routeModuleMap: document.querySelector("#routeModuleMap"),
+    secondaryWorkbenchList: document.querySelector("#secondaryWorkbenchList"),
+    moduleWorkbenchList: document.querySelector("#moduleWorkbenchList"),
     keywordGrid: document.querySelector("#keywordGrid"),
     typeChipRow: document.querySelector("#typeChipRow"),
     quickFilterRow: document.querySelector("#quickFilterRow"),
@@ -451,17 +583,7 @@
       dom.roleSelect.value = state.activeRole;
     }
 
-    dom.navList.innerHTML = config.navItems
-      .map(
-        (item) => `
-          <button class="nav-item ${item.active ? "active" : ""}" type="button" data-section="${escapeHtml(item.section)}">
-            <i data-lucide="${escapeHtml(item.icon)}"></i>
-            <span>${escapeHtml(item.label)}</span>
-            <small>${escapeHtml((config.secondaryMenus || []).find((menu) => menu.section === item.section)?.items?.[0] || "搜索")}</small>
-          </button>
-        `,
-      )
-      .join("");
+    renderNavList();
 
     const metrics = usingLocalIndex
       ? [
@@ -594,6 +716,65 @@
 
     dom.fontSizeRange.min = config.appearance.fontSize.min;
     dom.fontSizeRange.max = config.appearance.fontSize.max;
+    arrangeModulesForSection();
+    applyModuleLayouts();
+    renderLayoutWorkbench();
+  }
+
+  function renderNavList() {
+    if (!dom.navList) return;
+    dom.navList.innerHTML = orderedNavItems()
+      .map(
+        (item) => `
+          <button class="nav-item ${item.section === state.activeSection ? "active" : ""}" type="button" draggable="true" data-section="${escapeHtml(item.section)}">
+            <i data-lucide="${escapeHtml(item.icon)}"></i>
+            <span>${escapeHtml(item.label)}</span>
+            <small>${escapeHtml(currentSecondaryMenu(item.section)?.items?.[0]?.label || "搜索")}</small>
+          </button>
+        `,
+      )
+      .join("");
+    refreshIcons();
+  }
+
+  function orderedNavItems() {
+    return (config.navItems || [])
+      .slice()
+      .sort((a, b) => state.menuOrder.indexOf(a.section) - state.menuOrder.indexOf(b.section));
+  }
+
+  function currentNavItem(section = state.activeSection) {
+    return (config.navItems || []).find((item) => item.section === section) || config.navItems?.[0];
+  }
+
+  function currentSecondaryMenu(section = state.activeSection) {
+    return state.secondaryMenus.find((menu) => menu.section === section);
+  }
+
+  function moduleCatalogItem(moduleId) {
+    return (config.moduleCatalog || []).find((item) => item.id === moduleId);
+  }
+
+  function menuModules(section = state.activeSection) {
+    const configured = state.menuModuleMap[section] || [];
+    const fromSecondary = (currentSecondaryMenu(section)?.items || []).map((item) => item.moduleId);
+    return normalizeModuleIdList([...configured, ...fromSecondary]);
+  }
+
+  function saveMenuOrder() {
+    writeJson(layoutStorageKeys.menuOrder, state.menuOrder);
+  }
+
+  function saveSecondaryMenus() {
+    writeJson(layoutStorageKeys.secondaryMenus, state.secondaryMenus);
+  }
+
+  function saveMenuModuleMap() {
+    writeJson(layoutStorageKeys.menuModuleMap, state.menuModuleMap);
+  }
+
+  function saveModuleLayouts() {
+    writeJson(layoutStorageKeys.moduleLayouts, state.moduleLayouts);
   }
 
   function currentRole() {
@@ -603,8 +784,16 @@
   function renderSecondaryMenus() {
     if (!dom.secondaryMenuGrid) return;
     const term = normalizeQuery(dom.sectionSearchInput?.value || dom.menuSearchInput?.value || "");
-    const menus = (config.secondaryMenus || []).filter((menu) => {
-      const haystack = [menu.title, menu.hint, ...(menu.items || [])].join(" ").toLowerCase();
+    const hasTerm = Boolean(term);
+    const menus = state.secondaryMenus.filter((menu) => {
+      const haystack = [
+        menu.title,
+        menu.hint,
+        ...(menu.items || []).flatMap((item) => [item.label, item.query, moduleCatalogItem(item.moduleId)?.title]),
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (!hasTerm && menu.section !== state.activeSection) return false;
       return !term || term.split(/\s+/).every((item) => haystack.includes(item));
     });
 
@@ -621,7 +810,16 @@
               <input type="search" placeholder="${escapeHtml(menu.title)}内检索" aria-label="${escapeHtml(menu.title)}内检索" />
             </label>
             <div class="secondary-chip-row">
-              ${(menu.items || []).map((item) => `<button type="button">${escapeHtml(item)}</button>`).join("")}
+              ${(menu.items || [])
+                .map(
+                  (item) => `
+                    <button type="button" data-section="${escapeHtml(menu.section)}" data-module-id="${escapeHtml(item.moduleId)}" data-query="${escapeHtml(item.query)}">
+                      <span>${escapeHtml(item.label)}</span>
+                      <em>${escapeHtml(moduleCatalogItem(item.moduleId)?.title || "页面模块")}</em>
+                    </button>
+                  `,
+                )
+                .join("")}
             </div>
           </article>
         `,
@@ -766,6 +964,213 @@
         `,
       )
       .join("");
+  }
+
+  function moduleElement(moduleId) {
+    return document.querySelector(`.managed-module[data-module-id="${moduleId}"]`);
+  }
+
+  function applyModuleLayouts() {
+    document.querySelectorAll(".managed-module[data-module-id]").forEach((element) => {
+      const moduleId = element.dataset.moduleId;
+      const layout = state.moduleLayouts[moduleId] || { size: moduleCatalogItem(moduleId)?.defaultSize || "normal", locked: false };
+      element.classList.remove("module-size-compact", "module-size-normal", "module-size-wide", "module-size-long", "module-size-large", "module-locked");
+      element.classList.add(`module-size-${layout.size || "normal"}`);
+      element.classList.toggle("module-locked", Boolean(layout.locked));
+      element.dataset.locked = layout.locked ? "true" : "false";
+    });
+  }
+
+  function arrangeModulesForSection(section = state.activeSection) {
+    const parent = dom.appearancePanel?.parentElement;
+    if (!parent) return;
+    const activeModules = menuModules(section);
+    const orderedModules = [...activeModules, ...moduleIds().filter((id) => !activeModules.includes(id))];
+    let cursor = dom.appearancePanel;
+    orderedModules.forEach((moduleId) => {
+      const element = moduleElement(moduleId);
+      if (!element || element.parentElement !== parent) return;
+      parent.insertBefore(element, cursor.nextSibling);
+      cursor = element;
+    });
+  }
+
+  function scrollToModule(moduleId, shouldFocus = true) {
+    const element = moduleElement(moduleId);
+    if (!element) return;
+    document.querySelectorAll(".module-highlight").forEach((item) => item.classList.remove("module-highlight"));
+    menuModules().forEach((id) => moduleElement(id)?.classList.add("module-highlight"));
+    element.classList.add("module-highlight-focus");
+    window.setTimeout(() => element.classList.remove("module-highlight-focus"), 1600);
+    if (shouldFocus) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function syncMenuModuleMapFromSecondary(section = state.activeSection) {
+    const current = normalizeModuleIdList([
+      ...(state.menuModuleMap[section] || []),
+      ...((currentSecondaryMenu(section)?.items || []).map((item) => item.moduleId)),
+    ]);
+    state.menuModuleMap[section] = current;
+  }
+
+  function renderLayoutWorkbench() {
+    if (!dom.moduleWorkbenchList) return;
+    syncMenuModuleMapFromSecondary(state.activeSection);
+    const navItem = currentNavItem();
+    const secondaryMenu = currentSecondaryMenu();
+    const modules = menuModules();
+    if (dom.layoutScopeBadge) dom.layoutScopeBadge.textContent = navItem?.label || "当前菜单";
+    if (dom.activeRouteTitle) dom.activeRouteTitle.textContent = `${navItem?.label || "当前菜单"} / ${secondaryMenu?.title || "二级材料"}`;
+    if (dom.activeRouteCount) dom.activeRouteCount.textContent = `${modules.length} 个模块`;
+
+    if (dom.routeModuleMap) {
+      dom.routeModuleMap.innerHTML = `
+        <div class="route-menu-dropzone" data-drop-section="${escapeHtml(state.activeSection)}">
+          <strong>${escapeHtml(navItem?.label || "一级菜单")}</strong>
+          <span>把二级材料拖到这里，归入当前一级菜单</span>
+        </div>
+        <div class="route-menu-bins">
+          ${orderedNavItems()
+            .map((item) => {
+              const count = currentSecondaryMenu(item.section)?.items?.length || 0;
+              return `
+                <button class="${item.section === state.activeSection ? "active" : ""}" type="button" data-drop-section="${escapeHtml(item.section)}">
+                  <strong>${escapeHtml(item.label)}</strong>
+                  <span>${count} 个二级材料</span>
+                </button>
+              `;
+            })
+            .join("")}
+        </div>
+        <div class="route-module-chain">
+          ${modules
+            .map((moduleId, index) => {
+              const module = moduleCatalogItem(moduleId);
+              return `
+                <button class="route-module-pill" type="button" data-module-id="${escapeHtml(moduleId)}">
+                  <em>${index + 1}</em>
+                  <span>${escapeHtml(module?.title || moduleId)}</span>
+                </button>
+              `;
+            })
+            .join("")}
+        </div>
+      `;
+    }
+
+    if (dom.secondaryWorkbenchList) {
+      dom.secondaryWorkbenchList.innerHTML = (secondaryMenu?.items || [])
+        .map((item, index) => {
+          const module = moduleCatalogItem(item.moduleId);
+          return `
+            <article class="workbench-item secondary-item" draggable="true" data-secondary-index="${index}" data-module-id="${escapeHtml(item.moduleId)}">
+              <button class="drag-handle" type="button" aria-label="拖动二级材料"><i data-lucide="grip-vertical"></i></button>
+              <div>
+                <strong>${escapeHtml(item.label)}</strong>
+                <span>${escapeHtml(item.query || item.label)}</span>
+              </div>
+              <button class="linked-module-chip" type="button" data-module-id="${escapeHtml(item.moduleId)}">${escapeHtml(module?.title || "页面模块")}</button>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    dom.moduleWorkbenchList.innerHTML = modules
+      .map((moduleId, index) => {
+        const module = moduleCatalogItem(moduleId);
+        const layout = state.moduleLayouts[moduleId] || { size: module?.defaultSize || "normal", locked: false };
+        const locked = Boolean(layout.locked);
+        return `
+          <article class="workbench-item module-item ${locked ? "locked" : ""}" draggable="${locked ? "false" : "true"}" data-module-id="${escapeHtml(moduleId)}">
+            <button class="drag-handle" type="button" aria-label="拖动页面模块" ${locked ? "disabled" : ""}><i data-lucide="${locked ? "lock" : "grip-vertical"}"></i></button>
+            <div>
+              <strong>${index + 1}. ${escapeHtml(module?.title || moduleId)}</strong>
+              <span>${escapeHtml(module?.desc || "已关联到当前菜单")}</span>
+            </div>
+            <div class="module-size-actions" aria-label="模块尺寸控制">
+              ${moduleSizeOptions
+                .map(
+                  (size) => `
+                    <button class="${layout.size === size.key ? "active" : ""}" type="button" title="${escapeHtml(size.label)}" data-size="${escapeHtml(size.key)}" ${locked ? "disabled" : ""}>
+                      <i data-lucide="${escapeHtml(size.icon)}"></i>
+                      <span>${escapeHtml(size.label)}</span>
+                    </button>
+                  `,
+                )
+                .join("")}
+              <button class="lock-toggle ${locked ? "active" : ""}" type="button" title="${locked ? "解锁模块" : "锁定模块"}" data-lock-toggle="true">
+                <i data-lucide="${locked ? "lock" : "unlock"}"></i>
+                <span>${locked ? "已锁" : "锁定"}</span>
+              </button>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    applyModuleLayouts();
+    renderNavList();
+    refreshIcons();
+  }
+
+  function activateSection(section, options = {}) {
+    if (!section || !currentNavItem(section)) return;
+    state.activeSection = section;
+    syncMenuModuleMapFromSecondary(section);
+    arrangeModulesForSection(section);
+    renderNavList();
+    renderSecondaryMenus();
+    renderLayoutWorkbench();
+
+    const targetModuleId = options.moduleId || menuModules(section)[0];
+    if (options.query !== undefined && dom.searchInput) {
+      dom.searchInput.value = options.query;
+      renderResults();
+    }
+    scrollToModule(targetModuleId, options.scroll !== false);
+  }
+
+  function reorderArray(items, fromIndex, toIndex) {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= items.length || toIndex >= items.length) {
+      return items;
+    }
+    const next = [...items];
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved);
+    return next;
+  }
+
+  function moveSecondaryItem(fromSection, fromIndex, toSection, toIndex = 0) {
+    const sourceMenu = currentSecondaryMenu(fromSection);
+    const targetMenu = currentSecondaryMenu(toSection);
+    if (!sourceMenu || !targetMenu) return;
+    const sourceItems = [...sourceMenu.items];
+    const [moved] = sourceItems.splice(fromIndex, 1);
+    if (!moved) return;
+    sourceMenu.items = sourceItems;
+    const targetItems = sourceMenu === targetMenu ? sourceItems : [...targetMenu.items];
+    targetItems.splice(Math.max(0, Math.min(toIndex, targetItems.length)), 0, moved);
+    targetMenu.items = targetItems;
+    syncMenuModuleMapFromSecondary(fromSection);
+    syncMenuModuleMapFromSecondary(toSection);
+    saveSecondaryMenus();
+    saveMenuModuleMap();
+    renderSecondaryMenus();
+    renderLayoutWorkbench();
+  }
+
+  function moveModuleInActiveMenu(fromModuleId, toModuleId) {
+    const modules = menuModules();
+    const fromIndex = modules.indexOf(fromModuleId);
+    const toIndex = modules.indexOf(toModuleId);
+    if (state.moduleLayouts[fromModuleId]?.locked || state.moduleLayouts[toModuleId]?.locked) return;
+    state.menuModuleMap[state.activeSection] = reorderArray(modules, fromIndex, toIndex);
+    saveMenuModuleMap();
+    arrangeModulesForSection();
+    renderLayoutWorkbench();
   }
 
   function normalizeQuery(value) {
@@ -1393,6 +1798,176 @@
     renderResults();
   }
 
+  function bindLayoutWorkbenchEvents() {
+    dom.navList?.addEventListener("dragstart", (event) => {
+      const button = event.target.closest(".nav-item");
+      if (!button) return;
+      state.dragPayload = { type: "nav", section: button.dataset.section };
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", button.dataset.section || "");
+      button.classList.add("dragging");
+    });
+
+    dom.navList?.addEventListener("dragend", () => {
+      state.dragPayload = null;
+      dom.navList.querySelectorAll(".dragging").forEach((item) => item.classList.remove("dragging"));
+    });
+
+    dom.navList?.addEventListener("dragover", (event) => {
+      if (state.dragPayload?.type !== "nav") return;
+      const button = event.target.closest(".nav-item");
+      if (!button) return;
+      event.preventDefault();
+    });
+
+    dom.navList?.addEventListener("drop", (event) => {
+      if (state.dragPayload?.type !== "nav") return;
+      const button = event.target.closest(".nav-item");
+      if (!button) return;
+      event.preventDefault();
+      const fromIndex = state.menuOrder.indexOf(state.dragPayload.section);
+      const toIndex = state.menuOrder.indexOf(button.dataset.section);
+      state.menuOrder = reorderArray(state.menuOrder, fromIndex, toIndex);
+      saveMenuOrder();
+      renderNavList();
+      renderLayoutWorkbench();
+    });
+
+    dom.routeModuleMap?.addEventListener("click", (event) => {
+      const moduleButton = event.target.closest(".route-module-pill");
+      if (moduleButton) {
+        scrollToModule(moduleButton.dataset.moduleId);
+        return;
+      }
+      const bin = event.target.closest("[data-drop-section]");
+      if (!bin) return;
+      activateSection(bin.dataset.dropSection);
+    });
+
+    dom.routeModuleMap?.addEventListener("dragover", (event) => {
+      if (state.dragPayload?.type !== "secondary") return;
+      const bin = event.target.closest("[data-drop-section]");
+      if (!bin) return;
+      event.preventDefault();
+      bin.classList.add("drop-active");
+    });
+
+    dom.routeModuleMap?.addEventListener("dragleave", (event) => {
+      event.target.closest("[data-drop-section]")?.classList.remove("drop-active");
+    });
+
+    dom.routeModuleMap?.addEventListener("drop", (event) => {
+      if (state.dragPayload?.type !== "secondary") return;
+      const bin = event.target.closest("[data-drop-section]");
+      if (!bin) return;
+      event.preventDefault();
+      bin.classList.remove("drop-active");
+      moveSecondaryItem(state.dragPayload.section, state.dragPayload.index, bin.dataset.dropSection, 0);
+      activateSection(bin.dataset.dropSection, { scroll: false });
+    });
+
+    dom.secondaryWorkbenchList?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-module-id]");
+      if (!button) return;
+      scrollToModule(button.dataset.moduleId);
+    });
+
+    dom.secondaryWorkbenchList?.addEventListener("dragstart", (event) => {
+      const item = event.target.closest(".secondary-item");
+      if (!item) return;
+      state.dragPayload = {
+        type: "secondary",
+        section: state.activeSection,
+        index: Number(item.dataset.secondaryIndex),
+      };
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", item.dataset.secondaryIndex || "0");
+      item.classList.add("dragging");
+    });
+
+    dom.secondaryWorkbenchList?.addEventListener("dragend", () => {
+      state.dragPayload = null;
+      dom.secondaryWorkbenchList.querySelectorAll(".dragging").forEach((item) => item.classList.remove("dragging"));
+    });
+
+    dom.secondaryWorkbenchList?.addEventListener("dragover", (event) => {
+      if (state.dragPayload?.type !== "secondary") return;
+      const item = event.target.closest(".secondary-item");
+      if (!item) return;
+      event.preventDefault();
+    });
+
+    dom.secondaryWorkbenchList?.addEventListener("drop", (event) => {
+      if (state.dragPayload?.type !== "secondary") return;
+      const item = event.target.closest(".secondary-item");
+      if (!item) return;
+      event.preventDefault();
+      moveSecondaryItem(state.dragPayload.section, state.dragPayload.index, state.activeSection, Number(item.dataset.secondaryIndex));
+    });
+
+    dom.moduleWorkbenchList?.addEventListener("click", (event) => {
+      const row = event.target.closest(".module-item");
+      if (!row) return;
+      const moduleId = row.dataset.moduleId;
+      const sizeButton = event.target.closest("button[data-size]");
+      const lockButton = event.target.closest("button[data-lock-toggle]");
+      if (sizeButton) {
+        if (state.moduleLayouts[moduleId]?.locked) return;
+        state.moduleLayouts[moduleId] = {
+          ...(state.moduleLayouts[moduleId] || {}),
+          size: sizeButton.dataset.size,
+          locked: false,
+        };
+        saveModuleLayouts();
+        applyModuleLayouts();
+        renderLayoutWorkbench();
+        scrollToModule(moduleId, false);
+        return;
+      }
+      if (lockButton) {
+        const current = state.moduleLayouts[moduleId] || {};
+        state.moduleLayouts[moduleId] = {
+          size: current.size || moduleCatalogItem(moduleId)?.defaultSize || "normal",
+          locked: !current.locked,
+        };
+        saveModuleLayouts();
+        applyModuleLayouts();
+        renderLayoutWorkbench();
+        return;
+      }
+      scrollToModule(moduleId);
+    });
+
+    dom.moduleWorkbenchList?.addEventListener("dragstart", (event) => {
+      const item = event.target.closest(".module-item");
+      if (!item || state.moduleLayouts[item.dataset.moduleId]?.locked) return;
+      state.dragPayload = { type: "module", moduleId: item.dataset.moduleId };
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", item.dataset.moduleId || "");
+      item.classList.add("dragging");
+    });
+
+    dom.moduleWorkbenchList?.addEventListener("dragend", () => {
+      state.dragPayload = null;
+      dom.moduleWorkbenchList.querySelectorAll(".dragging").forEach((item) => item.classList.remove("dragging"));
+    });
+
+    dom.moduleWorkbenchList?.addEventListener("dragover", (event) => {
+      if (state.dragPayload?.type !== "module") return;
+      const item = event.target.closest(".module-item");
+      if (!item || state.moduleLayouts[item.dataset.moduleId]?.locked) return;
+      event.preventDefault();
+    });
+
+    dom.moduleWorkbenchList?.addEventListener("drop", (event) => {
+      if (state.dragPayload?.type !== "module") return;
+      const item = event.target.closest(".module-item");
+      if (!item) return;
+      event.preventDefault();
+      moveModuleInActiveMenu(state.dragPayload.moduleId, item.dataset.moduleId);
+    });
+  }
+
   function bindAppearanceEvents() {
     dom.appearanceToggle.addEventListener("click", () => {
       const isHidden = dom.appearancePanel.hidden;
@@ -1455,15 +2030,16 @@
     dom.navList.addEventListener("click", (event) => {
       const button = event.target.closest(".nav-item");
       if (!button) return;
-      dom.navList.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
-      button.classList.add("active");
+      activateSection(button.dataset.section);
     });
 
     dom.secondaryMenuGrid?.addEventListener("click", (event) => {
       const chip = event.target.closest(".secondary-chip-row button");
       if (!chip) return;
-      dom.searchInput.value = chip.textContent.trim();
-      renderResults();
+      activateSection(chip.dataset.section || state.activeSection, {
+        moduleId: chip.dataset.moduleId,
+        query: chip.dataset.query ?? chip.textContent.trim(),
+      });
     });
 
     dom.secondaryMenuGrid?.addEventListener("input", (event) => {
@@ -1548,6 +2124,7 @@
         : "语音";
     });
 
+    bindLayoutWorkbenchEvents();
     bindAppearanceEvents();
   }
 

@@ -106,7 +106,7 @@
           </div>
         </section>
 
-        <section class="command-center" aria-label="智能检索">
+        <section class="command-center managed-module" data-module-id="command" data-module-title="全域智能检索台" aria-label="智能检索">
           <div class="search-box">
             <i data-lucide="search"></i>
             <input
@@ -183,9 +183,51 @@
           <div id="quickFilterRow" class="filter-row" aria-label="筛选条件"></div>
         </section>
 
-        <section id="metricGrid" class="metric-grid" aria-label="资产概览"></section>
+        <section id="metricGrid" class="metric-grid managed-module" data-module-id="metrics" data-module-title="资产指标总览" aria-label="资产概览"></section>
 
-        <section class="saas-console workspace-panel" aria-label="SaaS平台底座">
+        <section class="workspace-panel layout-workbench managed-module" data-module-id="layoutWorkbench" data-module-title="菜单模块编排台" aria-label="菜单模块编排">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">页面模块编排</p>
+              <h2>一级菜单、二级材料、页面模块、尺寸和锁定直接关联</h2>
+            </div>
+            <span id="layoutScopeBadge" class="nas-target">经营驾驶舱</span>
+          </div>
+          <div class="layout-workbench-body">
+            <div class="layout-route-panel">
+              <div class="section-mini-head">
+                <div>
+                  <p class="eyebrow">当前菜单链路</p>
+                  <h3 id="activeRouteTitle">经营驾驶舱</h3>
+                </div>
+                <span id="activeRouteCount">0 个模块</span>
+              </div>
+              <div id="routeModuleMap" class="route-module-map"></div>
+            </div>
+            <div class="layout-route-panel">
+              <div class="section-mini-head">
+                <div>
+                  <p class="eyebrow">二级材料归属</p>
+                  <h3>拖动二级材料，可调整到当前一级菜单顺序</h3>
+                </div>
+                <span>Demo 可保存</span>
+              </div>
+              <div id="secondaryWorkbenchList" class="secondary-workbench-list"></div>
+            </div>
+            <div class="layout-route-panel">
+              <div class="section-mini-head">
+                <div>
+                  <p class="eyebrow">页面模块尺寸</p>
+                  <h3>支持变宽、变长、等比放大、缩小和锁定</h3>
+                </div>
+                <span>本地记忆</span>
+              </div>
+              <div id="moduleWorkbenchList" class="module-workbench-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="saas-console workspace-panel managed-module" data-module-id="saas" data-module-title="SaaS 架构与权限底座" aria-label="SaaS平台底座">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">SaaS 架构底座</p>
@@ -209,7 +251,7 @@
           </div>
         </section>
 
-        <section class="workspace-panel file-type-panel" aria-label="电子文件类型库">
+        <section class="workspace-panel file-type-panel managed-module" data-module-id="fileTypes" data-module-title="电子文件类型库" aria-label="电子文件类型库">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">电子文件类型库</p>
@@ -220,7 +262,7 @@
           <div id="fileTypeLibrary" class="file-type-library"></div>
         </section>
 
-        <section class="workspace-panel formula-panel" aria-label="演示公式样例">
+        <section class="workspace-panel formula-panel managed-module" data-module-id="formulas" data-module-title="Demo 公式样例" aria-label="演示公式样例">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Demo 公式样例</p>
@@ -231,7 +273,7 @@
           <div id="formulaDemoGrid" class="formula-demo-grid"></div>
         </section>
 
-        <section class="workspace-panel intake-panel" aria-label="多源采集入口">
+        <section class="workspace-panel intake-panel managed-module" data-module-id="intake" data-module-title="全介质采集入口" aria-label="多源采集入口">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">全介质采集入口</p>
@@ -250,7 +292,7 @@
           </div>
         </section>
 
-        <section class="workspace-panel batch-history-panel" aria-label="扫描批次历史">
+        <section class="workspace-panel batch-history-panel managed-module" data-module-id="batchHistory" data-module-title="扫描批次历史" aria-label="扫描批次历史">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">批次历史看板</p>
@@ -261,7 +303,7 @@
           <div id="batchHistoryList" class="batch-history-list"></div>
         </section>
 
-        <section class="workspace-panel validation-panel" aria-label="真实介质样本验证">
+        <section class="workspace-panel validation-panel managed-module" data-module-id="validation" data-module-title="真实介质样本验证" aria-label="真实介质样本验证">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">真实介质样本验证</p>
@@ -275,7 +317,7 @@
           <div id="sampleDecisionList" class="sample-decision-list"></div>
         </section>
 
-        <div class="content-grid">
+        <div class="content-grid managed-module" data-module-id="archiveResults" data-module-title="档案检索结果与媒体预览">
           <section class="workspace-panel archive-panel" aria-label="档案检索结果">
             <div class="panel-heading">
               <div>
@@ -353,7 +395,7 @@
           </aside>
         </div>
 
-        <section class="lower-grid" aria-label="工作队列">
+        <section class="lower-grid managed-module" data-module-id="finishPipeline" data-module-title="AI 收尾池与数据流水线" aria-label="工作队列">
           <article class="workspace-panel finish-panel">
             <div class="panel-heading">
               <div>
