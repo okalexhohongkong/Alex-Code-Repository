@@ -155,14 +155,15 @@
       }
 
       .panel {
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
         background: var(--panel);
         border: 1px solid var(--line);
         border-radius: 8px;
         padding: 18px;
-      }
-
-      .gantt {
-        overflow-x: auto;
       }
 
       .timeline {
@@ -285,6 +286,7 @@
 
       table {
         width: 100%;
+        min-width: 720px;
         border-collapse: collapse;
         margin-top: 12px;
         overflow: hidden;
@@ -361,6 +363,10 @@
         .grid {
           grid-template-columns: 1fr;
         }
+
+        table {
+          min-width: 640px;
+        }
       }
     </style>
   </head>
@@ -368,9 +374,9 @@
     <main class="page">
       <header class="hero">
         <div>
-          <p class="eyebrow title-line">项目管理看板｜更新时间 2026-06-27 23:55 <span class="progress-badge ahead">100.0%</span></p>
+          <p class="eyebrow title-line">项目管理看板｜更新时间 2026-06-28 03:55 <span class="progress-badge ahead">100.0%</span></p>
           <h1 class="title-line">黑卫士 AI 数字档案管理系统实施进度 <span class="progress-badge ahead">100.0%</span></h1>
-          <p>当前演示/单机/桌面封装/远程仓库阶段已闭环：只读扫描、本地索引、浏览器脱敏索引、按档案编号申请打开所在位置、本机索引快搜、一键演示、服务健康检查、桌面主系统入口、桌面进度看板入口、桌面只读扫描文件夹入口、桌面项目文件入口、远程仓库上传、分类字段、L0-L6 密级和作品等级规则已验收；作品完成度评分、作品水准评分、AI 修复候选、四向菜单和折叠菜单已进入主界面；真实数据接入准备已补入界面批次控制、SOP、批次报告文件、多目录合并索引、批次历史看板、真实介质样本验证流程、真实样本点验登记模板、扫描前检查清单和点验结果判定表；真实 40T-60T 全量接入仍等待真实硬盘、NAS、手机、云盘或样本目录。</p>
+          <p>当前演示/单机/桌面封装/远程仓库阶段已闭环：只读扫描、本地索引、浏览器脱敏索引、按档案编号申请打开所在位置、本机索引快搜、一键演示、服务健康检查、桌面主系统入口、桌面进度看板入口、桌面只读扫描文件夹入口、桌面项目文件入口、远程仓库上传、分类字段、L0-L6 密级和作品等级规则已验收；作品完成度评分、作品水准评分、AI 修复候选、四向菜单和折叠菜单已进入主界面；移动端表格滚动、设置面板、菜单布局已完成收口，手机和桌面视口复核通过；真实数据接入准备已补入界面批次控制、SOP、批次报告文件、多目录合并索引、批次历史看板、真实介质样本验证流程、真实样本点验登记模板、扫描前检查清单和点验结果判定表；真实 40T-60T 全量接入仍等待真实硬盘、NAS、手机、云盘或样本目录。</p>
           <div class="legend">
             <span><span class="progress-badge normal small">88.0%</span> 蓝色跳动：正常推进示例</span>
             <span><span class="progress-badge ahead small">100.0%</span> 绿色：超前或提前完成</span>
@@ -435,6 +441,10 @@
               <div class="bar done col-5-6">已完成</div>
             </div>
             <div class="task">
+              <div class="task-name">移动端界面收口 <span class="progress-badge ahead small">100.0%</span></div>
+              <div class="bar done col-5-6">已完成</div>
+            </div>
+            <div class="task">
               <div class="task-name">服务健康检查/脱敏索引复核 <span class="progress-badge ahead small">100.0%</span></div>
               <div class="bar done col-5-6">已完成</div>
             </div>
@@ -491,13 +501,18 @@
               <div class="progress-line"><span style="width: 100%"></span></div>
             </div>
             <div class="card">
+              <strong>移动端界面收口 <span class="progress-badge ahead small">100.0%</span></strong>
+              <span>手机视口下设置面板不撑宽，宽表格只在自身区域横向滚动，不撑开整页；桌面视口复核无副作用。</span>
+              <div class="progress-line"><span style="width: 100%"></span></div>
+            </div>
+            <div class="card">
               <strong>桌面可打开封装 <span class="progress-badge ahead small">100.0%</span></strong>
               <span>桌面主系统入口、桌面进度看板入口、桌面只读扫描文件夹入口和桌面项目文件入口已生成；启动脚本可自动复用现有服务，并用启动锁避免重复启动。</span>
               <div class="progress-line"><span style="width: 100%"></span></div>
             </div>
             <div class="card">
               <strong>远程仓库上传 <span class="progress-badge ahead small">100.0%</span></strong>
-              <span>已上传到 GitHub 仓库 okalexhohongkong/aiDigitalArchives，main 分支已建立跟踪；最新增强版提交为 e339720 Add dual scoring and flexible menu layout。</span>
+              <span>已上传到 GitHub 仓库 okalexhohongkong/aiDigitalArchives，main 分支已建立跟踪；最新增强版保持同步。</span>
               <div class="progress-line"><span style="width: 100%"></span></div>
             </div>
             <div class="card">
@@ -610,6 +625,14 @@
               <td>界面设置内可切换左、上、右、下和折叠菜单</td>
             </tr>
             <tr>
+              <td>L15</td>
+              <td>移动端界面收口</td>
+              <td>表格滚动容器、设置面板、菜单布局移动端约束</td>
+              <td><span class="tag done">已完成</span></td>
+              <td><span class="progress-badge ahead small">100.0%</span></td>
+              <td>手机视口整页不再被宽表格撑开，桌面视口无副作用</td>
+            </tr>
+            <tr>
               <td>L9</td>
               <td>服务健康检查</td>
               <td>首页、看板、健康接口、浏览器脱敏索引</td>
@@ -631,7 +654,7 @@
               <td>GitHub main 分支</td>
               <td><span class="tag done">已完成</span></td>
               <td><span class="progress-badge ahead small">100.0%</span></td>
-              <td>已推送到远程 main 分支，最新提交为 e339720 Add dual scoring and flexible menu layout</td>
+              <td>已推送到远程 main 分支，最新增强版保持同步</td>
             </tr>
             <tr>
               <td>L12</td>
@@ -676,10 +699,10 @@
             </tr>
             <tr>
               <td>B 界面/检索线</td>
-              <td>检索入口、字段展示、预览元数据、双评分、四向菜单</td>
-              <td>主界面、高级检索、表格字段、预览标签、菜单布局控制</td>
+              <td>检索入口、字段展示、预览元数据、双评分、四向菜单、移动端收口</td>
+              <td>主界面、高级检索、表格字段、预览标签、菜单布局控制、表格滚动容器</td>
               <td><span class="progress-badge ahead small">100.0%</span></td>
-              <td>浏览器脱敏索引可读取，双评分和菜单布局已纳入主界面</td>
+              <td>浏览器脱敏索引可读取，双评分、菜单布局和移动端表格滚动已纳入主界面</td>
             </tr>
             <tr>
               <td>C 权限/备份线</td>
@@ -721,7 +744,7 @@
               <td>版本提交、远程推送、SSH 推送稳定性</td>
               <td>GitHub main 分支、本仓库 SSH 别名</td>
               <td><span class="progress-badge ahead small">100.0%</span></td>
-              <td>最新增强版 e339720 已推送，git push 已验证</td>
+              <td>最新增强版已推送，git push 已验证</td>
             </tr>
             <tr>
               <td>I 真实接入准备线</td>

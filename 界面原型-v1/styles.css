@@ -1510,7 +1510,12 @@ h2 {
 }
 
 .matrix-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .matrix-table {
@@ -2192,7 +2197,12 @@ h2 {
 }
 
 .table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .archive-table {
@@ -2810,6 +2820,26 @@ h2 {
 
   .appearance-panel {
     grid-template-columns: 1fr;
+  }
+
+  .appearance-panel,
+  .settings-block,
+  .menu-layout-settings,
+  .menu-layout-settings > div:first-child,
+  .menu-position-controls,
+  .menu-collapse-toggle {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .menu-layout-settings > div:first-child,
+  .menu-collapse-toggle {
+    flex: 0 0 auto;
+  }
+
+  .menu-position-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .format-search,
