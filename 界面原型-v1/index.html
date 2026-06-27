@@ -15,13 +15,13 @@
     <script src="./app.js" defer></script>
   </head>
   <body>
-    <div class="app-shell">
+    <div id="appShell" class="app-shell">
       <aside class="sidebar" aria-label="主菜单">
         <div class="brand">
           <div class="brand-mark">H</div>
           <div>
-            <strong>黑卫士档案馆</strong>
-            <span>AI Archive 1.0</span>
+            <strong>黑卫士 AI 档案馆</strong>
+            <span>Digital Archive 1.0</span>
           </div>
         </div>
 
@@ -103,6 +103,23 @@
               <input id="fontSizeRange" type="range" min="13" max="18" value="15" />
             </label>
             <button id="resetAppearance" class="secondary-action" type="button">恢复默认</button>
+          </div>
+
+          <div class="settings-block menu-layout-settings">
+            <div>
+              <p class="eyebrow">菜单位置</p>
+              <h2>左、上、右、下自由切换</h2>
+            </div>
+            <div id="menuPositionControls" class="menu-position-controls" role="group" aria-label="菜单位置">
+              <button type="button" data-menu-position="left">左侧</button>
+              <button type="button" data-menu-position="top">顶部</button>
+              <button type="button" data-menu-position="right">右侧</button>
+              <button type="button" data-menu-position="bottom">底部</button>
+            </div>
+            <button id="menuCollapseToggle" class="secondary-action menu-collapse-toggle" type="button">
+              <i data-lucide="panel-left-close"></i>
+              <span>折叠菜单</span>
+            </button>
           </div>
         </section>
 

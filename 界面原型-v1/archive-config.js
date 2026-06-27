@@ -631,7 +631,9 @@ window.HWS_ARCHIVE_CONFIG = {
     { key: "storageRisk", label: "存储风险" },
     { key: "storageCostLevel", label: "成本等级" },
     { key: "status", label: "状态" },
-    { key: "score", label: "评分" },
+    { key: "completionScore", label: "完成度" },
+    { key: "qualityScore", label: "水准" },
+    { key: "aiRepairLabel", label: "AI 修复" },
     { key: "level", label: "密级" },
   ],
 

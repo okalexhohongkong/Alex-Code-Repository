@@ -20,7 +20,9 @@
     secondaryMenus: "hws-archive-secondary-menus-v1",
     menuModuleMap: "hws-archive-menu-module-map-v1",
     moduleLayouts: "hws-archive-module-layouts-v1",
+    menuLayout: "hws-archive-menu-layout-v1",
   };
+  const menuPositionOptions = ["left", "top", "right", "bottom"];
   const moduleSizeOptions = [
     { key: "compact", label: "等比-", icon: "minimize-2" },
     { key: "normal", label: "默认", icon: "rows-3" },
@@ -135,6 +137,14 @@
     );
   }
 
+  function loadMenuLayout() {
+    const saved = readJson(layoutStorageKeys.menuLayout, {});
+    return {
+      position: menuPositionOptions.includes(saved?.position) ? saved.position : "left",
+      collapsed: Boolean(saved?.collapsed),
+    };
+  }
+
   const state = {
     activeFilter: "all",
     activeWorkType: "all",
@@ -145,11 +155,13 @@
     secondaryMenus: loadSecondaryMenus(),
     menuModuleMap: loadMenuModuleMap(),
     moduleLayouts: loadModuleLayouts(),
+    menuLayout: loadMenuLayout(),
     dragPayload: null,
     selectedId: archives[0]?.id || "",
   };
 
   const dom = {
+    appShell: document.querySelector("#appShell"),
     navList: document.querySelector("#navList"),
     menuSearchInput: document.querySelector("#menuSearchInput"),
     metricGrid: document.querySelector("#metricGrid"),
@@ -201,6 +213,8 @@
     fontSizeRange: document.querySelector("#fontSizeRange"),
     fontSizeValue: document.querySelector("#fontSizeValue"),
     resetAppearance: document.querySelector("#resetAppearance"),
+    menuPositionControls: document.querySelector("#menuPositionControls"),
+    menuCollapseToggle: document.querySelector("#menuCollapseToggle"),
     previewTitle: document.querySelector("#previewTitle"),
     previewLevel: document.querySelector("#previewLevel"),
     previewFrame: document.querySelector("#previewFrame"),
@@ -283,6 +297,51 @@
     if (/优质|高价值|S 级|A级|A 级/.test(text)) return "优质作品";
     if (/残缺/.test(text)) return "残缺作品";
     return "常规作品";
+  }
+
+  function clampScore(value, fallback = 0) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return fallback;
+    return Math.max(0, Math.min(100, Math.round(number)));
+  }
+
+  function gradeFromScore(score) {
+    if (score >= 90) return "S";
+    if (score >= 80) return "A";
+    if (score >= 70) return "B";
+    if (score >= 60) return "C";
+    return "D";
+  }
+
+  function inferCompletionScore(item) {
+    const text = [item.assetStage, item.status, item.subtitle, item.summary].join(" ");
+    if (/完整已归档|经典作品|品牌资产|投标归档|邮件归档|合同扫描件|成片|交付版/.test(text)) return 100;
+    if (/完成度\s*([0-9]{1,3})/.test(text)) {
+      return clampScore(text.match(/完成度\s*([0-9]{1,3})/)?.[1], item.score || 75);
+    }
+    if (/初稿待收尾|快收尾|缺结尾|缺案例/.test(text)) return 92;
+    if (/录音转写|校对/.test(text)) return 83;
+    if (/缺预算|缺总结|缺少|残缺待补充/.test(text)) return 82;
+    if (/半成品|待收尾/.test(text)) return 78;
+    return clampScore(item.score, 75);
+  }
+
+  function inferQualityScore(item) {
+    return clampScore(item.qualityScore ?? item.score, 75);
+  }
+
+  function isAiRepairCandidate(item, completion) {
+    const text = [item.assetStage, item.status, item.title, item.subtitle, item.summary].join(" ");
+    const needsFinish = /半成品|待收尾|残缺|缺少|缺预算|缺总结|初稿|待补充|快收尾/.test(text);
+    const isRestricted = ["L4", "L5", "L6"].includes(item.level);
+    return completion >= 90 && needsFinish && !isRestricted;
+  }
+
+  function aiRepairLabel(item, completion) {
+    if (isAiRepairCandidate(item, completion)) return "AI 可修复";
+    if (completion >= 90) return "已接近完整";
+    if (completion >= 75) return "先补结构";
+    return "人工梳理";
   }
 
   function securityLevelName(level = "") {
@@ -448,6 +507,9 @@
   function enrichArchive(item) {
     const period = item.period || item.modifiedAt || "";
     const storageProfile = inferStorageProfile(item);
+    const completionScore = clampScore(item.completionScore ?? inferCompletionScore(item), 75);
+    const qualityScore = inferQualityScore(item);
+    const repairCandidate = Boolean(item.aiRepairCandidate ?? isAiRepairCandidate(item, completionScore));
     return {
       ...item,
       companyType: item.companyType || inferCompanyType(item.company),
@@ -461,6 +523,12 @@
       periodSearchText: item.periodSearchText || inferPeriodSearchText(item),
       assetStage: item.assetStage || inferAssetStage(item),
       qualityLevel: item.qualityLevel || inferQualityLevel(item),
+      completionScore,
+      completionGrade: gradeFromScore(completionScore),
+      qualityScore,
+      qualityGrade: gradeFromScore(qualityScore),
+      aiRepairCandidate: repairCandidate,
+      aiRepairLabel: item.aiRepairLabel || aiRepairLabel(item, completionScore),
       securityLevelName: item.securityLevelName || securityLevelName(item.level),
       storageSourceType: item.storageSourceType || storageProfile.storageSourceType,
       storageProvider: item.storageProvider || storageProfile.storageProvider,
@@ -775,6 +843,58 @@
 
   function saveModuleLayouts() {
     writeJson(layoutStorageKeys.moduleLayouts, state.moduleLayouts);
+  }
+
+  function saveMenuLayout() {
+    writeJson(layoutStorageKeys.menuLayout, state.menuLayout);
+  }
+
+  function menuLayoutLabel(position) {
+    return {
+      left: "左侧",
+      top: "顶部",
+      right: "右侧",
+      bottom: "底部",
+    }[position] || "左侧";
+  }
+
+  function menuCollapseIcon() {
+    if (state.menuLayout.position === "right") return state.menuLayout.collapsed ? "panel-left-open" : "panel-right-close";
+    if (state.menuLayout.position === "top") return state.menuLayout.collapsed ? "panel-bottom-open" : "panel-top-close";
+    if (state.menuLayout.position === "bottom") return state.menuLayout.collapsed ? "panel-top-open" : "panel-bottom-close";
+    return state.menuLayout.collapsed ? "panel-right-open" : "panel-left-close";
+  }
+
+  function applyMenuLayout(shouldSave = true) {
+    const position = menuPositionOptions.includes(state.menuLayout.position) ? state.menuLayout.position : "left";
+    const collapsed = Boolean(state.menuLayout.collapsed);
+
+    dom.appShell?.classList.remove(
+      "menu-left",
+      "menu-top",
+      "menu-right",
+      "menu-bottom",
+      "menu-collapsed",
+    );
+    dom.appShell?.classList.add(`menu-${position}`);
+    dom.appShell?.classList.toggle("menu-collapsed", collapsed);
+    dom.appShell?.setAttribute("data-menu-position", position);
+
+    dom.menuPositionControls?.querySelectorAll("button").forEach((button) => {
+      button.classList.toggle("active", button.dataset.menuPosition === position);
+    });
+
+    if (dom.menuCollapseToggle) {
+      dom.menuCollapseToggle.classList.toggle("active", collapsed);
+      dom.menuCollapseToggle.innerHTML = `
+        <i data-lucide="${escapeHtml(menuCollapseIcon())}"></i>
+        <span>${collapsed ? "展开菜单" : "折叠菜单"}</span>
+      `;
+      dom.menuCollapseToggle.setAttribute("aria-label", `${menuLayoutLabel(position)}菜单${collapsed ? "已折叠" : "已展开"}`);
+    }
+
+    if (shouldSave) saveMenuLayout();
+    refreshIcons();
   }
 
   function currentRole() {
@@ -1213,6 +1333,9 @@
       item.periodSearchText,
       item.assetStage,
       item.qualityLevel,
+      item.completionScore,
+      item.qualityScore,
+      item.aiRepairLabel,
       item.securityLevelName,
       item.storageSourceType,
       item.storageProvider,
@@ -1308,6 +1431,9 @@
       item.periodSearchText,
       item.assetStage,
       item.qualityLevel,
+      item.completionScore,
+      item.qualityScore,
+      item.aiRepairLabel,
       item.securityLevelName,
       item.storageSourceType,
       item.storageProvider,
@@ -1371,6 +1497,19 @@
 
     if (column.key === "assetStage" || column.key === "qualityLevel") {
       return `<td><span class="tag ${tagClass(item[column.key])}">${escapeHtml(item[column.key])}</span></td>`;
+    }
+
+    if (column.key === "completionScore") {
+      return `<td><span class="tag score-tag ${escapeHtml(item.completionGrade)}">${escapeHtml(item.completionScore)}%</span></td>`;
+    }
+
+    if (column.key === "qualityScore") {
+      return `<td><span class="tag score-tag ${escapeHtml(item.qualityGrade)}">${escapeHtml(item.qualityScore)}</span></td>`;
+    }
+
+    if (column.key === "aiRepairLabel") {
+      const tag = item.aiRepairCandidate ? "repair-ready" : item.completionScore >= 90 ? "classic" : "finish";
+      return `<td><span class="tag ${tag}">${escapeHtml(item.aiRepairLabel)}</span></td>`;
     }
 
     if (column.key === "score") {
@@ -1485,6 +1624,9 @@
       `作品类型：${item.workType}`,
       `完整状态：${item.assetStage}`,
       `作品等级：${item.qualityLevel}`,
+      `完成度评分：${item.completionScore}%`,
+      `作品水准评分：${item.qualityScore}`,
+      `AI 修复候选：${item.aiRepairLabel}`,
       `格式：${item.format}`,
       `存储来源：${item.storageSourceType}`,
       `存储名称：${item.storageProvider}`,
@@ -1494,7 +1636,6 @@
       `交叉校验：${item.crossCheckPolicy}`,
       `存储风险：${item.storageRisk}`,
       `成本等级：${item.storageCostLevel}`,
-      `评分：${item.grade} · ${item.score}`,
       `密级说明：${item.securityLevelName}`,
     ];
 
@@ -1561,17 +1702,34 @@
 
   function renderFinishList() {
     dom.finishList.innerHTML = finishItems
-      .map(
-        (item) => `
+      .map((item) => {
+        const completion = clampScore(item.completionScore ?? inferCompletionScore(item), 75);
+        const quality = clampScore(item.qualityScore ?? item.score, 75);
+        const repairLabel = item.aiRepairLabel || aiRepairLabel(item, completion);
+        const repairReady = isAiRepairCandidate(item, completion);
+        return `
           <div class="finish-item">
             <div>
               <h3>${escapeHtml(item.title)}</h3>
               <p>${escapeHtml(item.detail)}</p>
+              <div class="finish-meta">
+                <span class="${repairReady ? "ready" : ""}">${escapeHtml(repairLabel)}</span>
+                <span>完成度 90% 以上优先 AI 收尾</span>
+              </div>
             </div>
-            <div class="score-badge ${escapeHtml(item.grade)}">${escapeHtml(item.grade)}<br />${escapeHtml(item.score)}</div>
+            <div class="score-stack" aria-label="完成度和作品水准评分">
+              <div class="score-badge ${escapeHtml(gradeFromScore(completion))}">
+                <small>完成度</small>
+                <strong>${escapeHtml(completion)}%</strong>
+              </div>
+              <div class="score-badge ${escapeHtml(gradeFromScore(quality))}">
+                <small>水准</small>
+                <strong>${escapeHtml(quality)}</strong>
+              </div>
+            </div>
           </div>
-        `,
-      )
+        `;
+      })
       .join("");
   }
 
@@ -2006,6 +2164,18 @@
     dom.resetAppearance.addEventListener("click", () => {
       applyAppearance(defaultAppearance());
     });
+
+    dom.menuPositionControls?.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-menu-position]");
+      if (!button) return;
+      state.menuLayout.position = button.dataset.menuPosition;
+      applyMenuLayout();
+    });
+
+    dom.menuCollapseToggle?.addEventListener("click", () => {
+      state.menuLayout.collapsed = !state.menuLayout.collapsed;
+      applyMenuLayout();
+    });
   }
 
   function bindEvents() {
@@ -2130,6 +2300,7 @@
 
   renderConfigDrivenSections();
   applyAppearance(loadAppearance(), false);
+  applyMenuLayout(false);
   bindEvents();
   renderResults();
   renderFinishList();

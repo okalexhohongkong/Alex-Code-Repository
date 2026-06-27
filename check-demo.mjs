@@ -42,6 +42,10 @@ const requiredText = [
       "app.js",
       "颜色调色盘",
       "界面设置",
+      "黑卫士 AI 档案馆",
+      "菜单位置",
+      "menuPositionControls",
+      "menuCollapseToggle",
       "本机索引快搜",
       "localIndexSearchInput",
       "local-shortcut",
@@ -79,7 +83,20 @@ const requiredText = [
       "NAS 暂存区",
     ],
   ],
-  ["界面原型-v1/app.js", ["localIndexMatches", "clearLocalSearch", "local-shortcut"]],
+  [
+    "界面原型-v1/app.js",
+    [
+      "localIndexMatches",
+      "clearLocalSearch",
+      "local-shortcut",
+      "completionScore",
+      "qualityScore",
+      "aiRepairLabel",
+      "AI 修复候选",
+      "applyMenuLayout",
+      "menuPositionControls",
+    ],
+  ],
   [
     "界面原型-v1/app.js",
     [
@@ -224,6 +241,9 @@ const requiredText = [
       "camera",
       "人脸识别",
       "appearance",
+      "完成度",
+      "水准",
+      "AI 修复",
     ],
   ],
   [
