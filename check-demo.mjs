@@ -47,6 +47,7 @@ const requiredText = [
       "infoTickerTrack",
       "infoTickerFilters",
       "黑卫士 AI 档案馆",
+      "开发者：Alex",
       "菜单位置",
       "menuPositionControls",
       "左侧菜单显示方式",
