@@ -42,6 +42,18 @@
           </div>
           <p>已索引 41.8T，待处理 20.6T</p>
         </div>
+
+        <div class="sidebar-palette" aria-label="快速调色板">
+          <div class="storage-line">
+            <span>快速调色板</span>
+            <strong>可调</strong>
+          </div>
+          <div id="quickPaletteRow" class="quick-palette-row"></div>
+          <label class="quick-color-field">
+            <span>主色</span>
+            <input id="quickAccentColorInput" type="color" value="#00875a" />
+          </label>
+        </div>
       </aside>
 
       <main class="main">
@@ -116,6 +128,16 @@
               <button type="button" data-menu-position="right">右侧</button>
               <button type="button" data-menu-position="bottom">底部</button>
             </div>
+            <div id="menuDisplayModeControls" class="menu-mode-controls" role="group" aria-label="左侧菜单显示方式">
+              <button type="button" data-menu-mode="fixed" title="双击主菜单也可以固定">
+                <i data-lucide="panel-left-close"></i>
+                <span>固定显示</span>
+              </button>
+              <button type="button" data-menu-mode="hover" title="默认隐形，靠近左侧自动弹出">
+                <i data-lucide="panel-left-open"></i>
+                <span>隐形悬停</span>
+              </button>
+            </div>
             <button id="menuCollapseToggle" class="secondary-action menu-collapse-toggle" type="button">
               <i data-lucide="panel-left-close"></i>
               <span>折叠菜单</span>
@@ -136,6 +158,10 @@
               <i data-lucide="mic"></i>
               <span>语音</span>
             </button>
+          </div>
+          <div class="search-rule-strip">
+            <span>联合检索：空格 / + / * / # 表示同时满足</span>
+            <span>排除检索：-关键词 表示扣除该项</span>
           </div>
 
           <div class="menu-search-panel" aria-label="一级二级菜单检索">
@@ -200,6 +226,31 @@
           <div id="quickFilterRow" class="filter-row" aria-label="筛选条件"></div>
         </section>
 
+        <section class="workspace-panel library-board managed-module" data-module-id="libraryBoard" data-module-title="档案库分类看板" aria-label="档案库分类看板">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">档案库分类看板</p>
+              <h2>公司、项目、部门、员工、作品、案例和文件性质集中统计</h2>
+            </div>
+            <span id="libraryBoardCount" class="nas-target">等待统计</span>
+          </div>
+          <div id="libraryBoardGrid" class="library-board-grid"></div>
+        </section>
+
+        <section class="workspace-panel directory-panel managed-module" data-module-id="contentDirectory" data-module-title="内容检索总目录" aria-label="内容检索总目录">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">内容检索总目录</p>
+              <h2>通过一级、二级、三级、四级目录发现资料，再进入检索</h2>
+            </div>
+            <label class="format-search">
+              <span>目录关键词</span>
+              <input id="contentDirectorySearchInput" type="search" placeholder="如：公司、项目、标书、邮箱、视频、制度" />
+            </label>
+          </div>
+          <div id="contentDirectoryGrid" class="content-directory-grid"></div>
+        </section>
+
         <section id="metricGrid" class="metric-grid managed-module" data-module-id="metrics" data-module-title="资产指标总览" aria-label="资产概览"></section>
 
         <section class="workspace-panel layout-workbench managed-module" data-module-id="layoutWorkbench" data-module-title="菜单模块编排台" aria-label="菜单模块编排">
@@ -244,11 +295,11 @@
           </div>
         </section>
 
-        <section class="saas-console workspace-panel managed-module" data-module-id="saas" data-module-title="SaaS 架构与权限底座" aria-label="SaaS平台底座">
+        <section class="saas-console workspace-panel managed-module" data-module-id="saas" data-module-title="组织架构与权限底座" aria-label="组织架构与权限底座">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">SaaS 架构底座</p>
-              <h2>多租户、模块化、权限矩阵、审计和接口都要能组合开关</h2>
+              <p class="eyebrow">组织架构底座</p>
+              <h2>公司、项目、部门、个人、作品、权限矩阵、审计和接口都要能组合开关</h2>
             </div>
             <span id="roleScopeBadge" class="nas-target">最高授权人视角</span>
           </div>
@@ -300,6 +351,20 @@
           </div>
           <div id="intakeSourceGrid" class="intake-source-grid"></div>
           <div id="intakeSelected" class="intake-selected" aria-live="polite"></div>
+          <div class="intake-policy-wrap">
+            <div>
+              <p class="eyebrow">导入动作权限</p>
+              <h2>下载、删除云端、镜像回写都必须先审批和查毒</h2>
+            </div>
+            <div id="importActionPolicyGrid" class="import-action-policy-grid"></div>
+          </div>
+          <div class="terminal-policy-wrap">
+            <div>
+              <p class="eyebrow">多端口权限</p>
+              <h2>大屏、iPad、管理员端、操作终端机分权使用</h2>
+            </div>
+            <div id="terminalPortGrid" class="terminal-port-grid"></div>
+          </div>
           <div class="intake-flow">
             <div>
               <p class="eyebrow">归集流水线</p>
@@ -332,6 +397,28 @@
           <div id="sampleValidationForm" class="sample-validation-form"></div>
           <div id="samplePreflightList" class="sample-preflight-list"></div>
           <div id="sampleDecisionList" class="sample-decision-list"></div>
+        </section>
+
+        <section class="workspace-panel agent-panel managed-module" data-module-id="agentHub" data-module-title="Agent 接入中心" aria-label="Agent 接入中心">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Agent 接入中心</p>
+              <h2>优先接 Open cloud agent 和 Hermes agent，也允许自定义 Agent</h2>
+            </div>
+            <span class="nas-target">权限、令牌、审计先行</span>
+          </div>
+          <div id="agentConnectorGrid" class="agent-connector-grid"></div>
+        </section>
+
+        <section class="workspace-panel resilience-panel managed-module" data-module-id="resilience" data-module-title="备份容灾总控" aria-label="备份容灾总控">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">备份容灾总控</p>
+              <h2>时间胶囊、完整备份、数据库、组织架构、节点协议端口、克隆机统一审批</h2>
+            </div>
+            <span class="nas-target danger">最高权限 · 三人会签</span>
+          </div>
+          <div id="resiliencePlanGrid" class="resilience-plan-grid"></div>
         </section>
 
         <div class="content-grid managed-module" data-module-id="archiveResults" data-module-title="档案检索结果与媒体预览">

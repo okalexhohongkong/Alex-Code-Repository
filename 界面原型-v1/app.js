@@ -21,8 +21,10 @@
     menuModuleMap: "hws-archive-menu-module-map-v1",
     moduleLayouts: "hws-archive-module-layouts-v1",
     menuLayout: "hws-archive-menu-layout-v1",
+    customSuggestions: "hws-archive-custom-suggestions-v1",
   };
   const menuPositionOptions = ["left", "top", "right", "bottom"];
+  const menuDisplayModeOptions = ["fixed", "hover"];
   const moduleSizeOptions = [
     { key: "compact", label: "等比-", icon: "minimize-2" },
     { key: "normal", label: "默认", icon: "rows-3" },
@@ -139,11 +141,16 @@
 
   function loadMenuLayout() {
     const saved = readJson(layoutStorageKeys.menuLayout, {});
+    const mode = menuDisplayModeOptions.includes(saved?.mode) ? saved.mode : "hover";
+    const position = menuPositionOptions.includes(saved?.position) ? saved.position : "left";
     return {
-      position: menuPositionOptions.includes(saved?.position) ? saved.position : "left",
-      collapsed: Boolean(saved?.collapsed),
+      position: mode === "hover" ? "left" : position,
+      mode,
+      collapsed: mode === "hover" ? false : Boolean(saved?.collapsed),
     };
   }
+
+  const savedCustomSuggestions = readJson(layoutStorageKeys.customSuggestions, []);
 
   const state = {
     activeFilter: "all",
@@ -151,6 +158,7 @@
     activeSection: config.navItems?.find((item) => item.active)?.section || config.navItems?.[0]?.section || "dashboard",
     activeRole: config.roles?.[0]?.key || "owner",
     enabledModules: Object.fromEntries((config.modules || []).map((item) => [item.key, item.enabled !== false])),
+    customSuggestions: Array.isArray(savedCustomSuggestions) ? savedCustomSuggestions : [],
     menuOrder: loadMenuOrder(),
     secondaryMenus: loadSecondaryMenus(),
     menuModuleMap: loadMenuModuleMap(),
@@ -159,9 +167,11 @@
     dragPayload: null,
     selectedId: archives[0]?.id || "",
   };
+  let menuHoverCloseTimer = 0;
 
   const dom = {
     appShell: document.querySelector("#appShell"),
+    sidebar: document.querySelector(".sidebar"),
     navList: document.querySelector("#navList"),
     menuSearchInput: document.querySelector("#menuSearchInput"),
     metricGrid: document.querySelector("#metricGrid"),
@@ -189,6 +199,14 @@
     intakeSourceGrid: document.querySelector("#intakeSourceGrid"),
     intakeSelected: document.querySelector("#intakeSelected"),
     intakeWorkflow: document.querySelector("#intakeWorkflow"),
+    importActionPolicyGrid: document.querySelector("#importActionPolicyGrid"),
+    terminalPortGrid: document.querySelector("#terminalPortGrid"),
+    libraryBoardCount: document.querySelector("#libraryBoardCount"),
+    libraryBoardGrid: document.querySelector("#libraryBoardGrid"),
+    contentDirectorySearchInput: document.querySelector("#contentDirectorySearchInput"),
+    contentDirectoryGrid: document.querySelector("#contentDirectoryGrid"),
+    resiliencePlanGrid: document.querySelector("#resiliencePlanGrid"),
+    agentConnectorGrid: document.querySelector("#agentConnectorGrid"),
     batchHistoryStatus: document.querySelector("#batchHistoryStatus"),
     batchHistoryList: document.querySelector("#batchHistoryList"),
     sampleValidationStatus: document.querySelector("#sampleValidationStatus"),
@@ -206,6 +224,8 @@
     appearanceToggle: document.querySelector("#appearanceToggle"),
     appearancePanel: document.querySelector("#appearancePanel"),
     paletteRow: document.querySelector("#paletteRow"),
+    quickPaletteRow: document.querySelector("#quickPaletteRow"),
+    quickAccentColorInput: document.querySelector("#quickAccentColorInput"),
     accentColorInput: document.querySelector("#accentColorInput"),
     sidebarColorInput: document.querySelector("#sidebarColorInput"),
     pageColorInput: document.querySelector("#pageColorInput"),
@@ -214,6 +234,7 @@
     fontSizeValue: document.querySelector("#fontSizeValue"),
     resetAppearance: document.querySelector("#resetAppearance"),
     menuPositionControls: document.querySelector("#menuPositionControls"),
+    menuDisplayModeControls: document.querySelector("#menuDisplayModeControls"),
     menuCollapseToggle: document.querySelector("#menuCollapseToggle"),
     previewTitle: document.querySelector("#previewTitle"),
     previewLevel: document.querySelector("#previewLevel"),
@@ -238,6 +259,206 @@
     if (window.lucide) {
       window.lucide.createIcons();
     }
+  }
+
+  function uniqueValues(values) {
+    return Array.from(
+      new Set(
+        values
+          .flat()
+          .map((item) => String(item || "").trim())
+          .filter(Boolean),
+      ),
+    );
+  }
+
+  function suggestionPoolForInput(input) {
+    const field = input.dataset.field;
+    const placeholder = input.placeholder || "";
+    const commonTerms = uniqueValues([
+      config.navItems?.map((item) => item.label),
+      state.secondaryMenus.flatMap((menu) => [menu.title, menu.hint, ...(menu.items || []).map((item) => item.label)]),
+      config.workTypes?.map((item) => item.label.split("/")),
+      archives.flatMap((item) => [item.company, item.department, item.project, item.author, item.owner, item.workType, item.format, item.level]),
+    ]);
+    const pools = {
+      companyType: ["集团公司", "项目公司", "移民公司", "广告公司", "科技公司", "传媒公司", "贸易公司", "临时项目公司"],
+      project: uniqueValues([archives.map((item) => item.project), ["发布会", "签证服务", "投标项目", "广告片", "年度会议", "述职报告"]]),
+      projectType: ["投标/标书项目", "会议/活动项目", "经营报告/数据项目", "方案/提案项目", "媒体内容项目"],
+      company: uniqueValues([archives.map((item) => item.company), ["移民公司", "广告公司", "科技公司", "传媒公司", "贸易公司"]]),
+      departmentSystem: ["集团总部", "营销中心", "技术中心", "法务中心", "财务中心", "人事行政中心"],
+      department: uniqueValues([archives.map((item) => item.department), ["策划部", "设计部", "财务部", "人事部", "项目部", "技术部", "法务部", "营销部"]]),
+      employee: uniqueValues([archives.flatMap((item) => [item.author, item.owner]), ["文案", "设计", "剪辑", "顾问", "项目经理", "部门负责人"]]),
+      functionRole: ["文案", "设计", "剪辑", "顾问", "项目经理", "法务", "财务", "人事", "营销", "技术"],
+      periodSearchText: ["2026", "2025", "2020到2024", "2016到2019", "Q1", "Q2", "筹备期", "执行期", "收尾期"],
+      assetStage: ["残缺待补充", "残缺已补充", "完整", "优质", "经典案例", "示范文档"],
+      qualityLevel: ["惯例作品", "优秀案例", "经典案例", "经典制度", "示范文档"],
+      level: ["L0 外部流通", "L1 普通", "L2 内部", "L3 敏感", "L4 机密", "L5 最高授权", "L6 绝密"],
+      storageSourceType: ["本机", "外接硬盘", "NAS", "局域网网盘", "云盘", "手机", "iPad", "U盘", "SD卡", "邮箱"],
+      storageProvider: ["iCloud", "百度网盘", "阿里云盘", "企业微信", "飞书", "NAS 主库", "移动硬盘"],
+      accessMode: ["本机直连", "同步目录", "SMB", "WebDAV", "云盘同步", "手机导入", "邮箱归集"],
+      syncStrategy: ["只读索引", "云本同步", "三方校验", "增量同步", "人工点验"],
+      syncStatus: ["已同步", "待校验", "离线", "同步中", "异常待查"],
+      crossCheckPolicy: ["清单校验", "大小校验", "哈希校验", "差异报告", "人工复核"],
+      storageRisk: ["低", "中", "中高", "高"],
+      storageCostLevel: ["低", "中", "中高", "高"],
+    };
+    const custom = state.customSuggestions || [];
+    if (field && pools[field]) return uniqueValues([custom, pools[field]]);
+    if (input.id === "contentDirectorySearchInput") {
+      return uniqueValues([
+        custom,
+        ["一级目录", "二级目录", "三级目录", "四级目录", "公司与组织", "业务项目", "内容作品", "存储来源", "邮箱", "云端", "企业微信", "经典制度"],
+      ]);
+    }
+    if (input.id === "formatInput" || /格式|扩展名/.test(placeholder)) {
+      return uniqueValues([custom, ["PDF", "PPTX", "DOCX", "XLSX", "CSV", "EML", "MSG", "PSD", "AI", "CDR", "MP4", "MOV", "MP3", "WAV", "ZIP", "RAR"]]);
+    }
+    if (input.id === "localIndexSearchInput") {
+      return uniqueValues([custom, ["合同", "PPT", "项目进度", "验收", "Markdown", "程序文件", "PDF", "扫描件", "备份"]]);
+    }
+    if (input.dataset.moduleSearchInput) {
+      return uniqueValues([custom, commonTerms, ["本模块", "负责人", "权限", "批次", "真实介质", "AI 修复", "密级"]]);
+    }
+    if (input.id === "sectionSearchInput" || input.id === "menuSearchInput") {
+      return uniqueValues([custom, state.secondaryMenus.map((menu) => menu.title), state.secondaryMenus.flatMap((menu) => (menu.items || []).map((item) => item.label))]);
+    }
+    return uniqueValues([custom, commonTerms]).slice(0, 28);
+  }
+
+  function dispatchInput(input) {
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  function closeSuggestionMenu() {
+    document.querySelector(".input-suggestion-menu")?.remove();
+  }
+
+  function applySuggestion(input, value) {
+    input.value = value;
+    dispatchInput(input);
+    input.focus();
+    closeSuggestionMenu();
+  }
+
+  function addCustomSuggestion(input) {
+    const value = String(input.value || "").trim();
+    if (!value) {
+      input.focus();
+      return;
+    }
+    state.customSuggestions = uniqueValues([[value], state.customSuggestions]).slice(0, 40);
+    writeJson(layoutStorageKeys.customSuggestions, state.customSuggestions);
+    input.focus();
+    closeSuggestionMenu();
+  }
+
+  function openSuggestionMenu(input, anchor) {
+    closeSuggestionMenu();
+    const options = suggestionPoolForInput(input).slice(0, 14);
+    if (!options.length) return;
+    const rect = anchor.getBoundingClientRect();
+    const menu = document.createElement("div");
+    menu.className = "input-suggestion-menu";
+    menu.style.left = `${Math.min(rect.left, window.innerWidth - 260)}px`;
+    menu.style.top = `${rect.bottom + 6}px`;
+    menu.innerHTML = [
+      ...options.map((item) => `<button type="button" data-suggestion="${escapeHtml(item)}">${escapeHtml(item)}</button>`),
+      `<button class="suggestion-custom" type="button" data-add-custom="true">+ 把当前输入加入自定义常用词</button>`,
+    ].join("");
+    menu.addEventListener("click", (event) => {
+      if (event.target.closest("[data-add-custom]")) {
+        addCustomSuggestion(input);
+        return;
+      }
+      const button = event.target.closest("[data-suggestion]");
+      if (!button) return;
+      applySuggestion(input, button.dataset.suggestion || "");
+    });
+    document.body.appendChild(menu);
+  }
+
+  function startVoiceInput(input, button) {
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    document.querySelectorAll(".input-voice-button.listening, .voice-button.listening").forEach((item) => item.classList.remove("listening"));
+    button.classList.add("listening");
+    input.focus();
+    if (!Recognition) {
+      window.setTimeout(() => button.classList.remove("listening"), 1600);
+      return;
+    }
+    const recognition = new Recognition();
+    recognition.lang = "zh-CN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+      const transcript = event.results?.[0]?.[0]?.transcript || "";
+      if (!transcript) return;
+      input.value = transcript;
+      dispatchInput(input);
+    };
+    recognition.onend = () => button.classList.remove("listening");
+    recognition.onerror = () => button.classList.remove("listening");
+    recognition.start();
+  }
+
+  function enhanceSearchInputs(scope = document) {
+    scope.querySelectorAll('input[type="search"]').forEach((input) => {
+      if (input.dataset.enhancedInput === "true") return;
+      input.dataset.enhancedInput = "true";
+      const shell = document.createElement("span");
+      shell.className = "input-shell";
+      input.parentNode.insertBefore(shell, input);
+      shell.appendChild(input);
+
+      const voiceButton = document.createElement("button");
+      voiceButton.className = "input-icon-button input-voice-button";
+      voiceButton.type = "button";
+      voiceButton.title = "语音输入";
+      voiceButton.setAttribute("aria-label", "语音输入");
+      voiceButton.innerHTML = '<i data-lucide="mic"></i>';
+      shell.appendChild(voiceButton);
+
+      const suggestButton = document.createElement("button");
+      suggestButton.className = "input-icon-button input-suggest-button";
+      suggestButton.type = "button";
+      suggestButton.title = "打开关键词选项";
+      suggestButton.setAttribute("aria-label", "打开关键词选项");
+      suggestButton.innerHTML = '<i data-lucide="chevron-down"></i>';
+      shell.appendChild(suggestButton);
+    });
+  }
+
+  function renderModuleSearchBars() {
+    document.querySelectorAll(".managed-module[data-module-id]").forEach((module) => {
+      if (module.querySelector(":scope > .module-search-strip")) return;
+      const moduleId = module.dataset.moduleId || "module";
+      const title = module.dataset.moduleTitle || moduleCatalogItem(moduleId)?.title || "业务模块";
+      const strip = document.createElement("div");
+      strip.className = "module-search-strip";
+      strip.innerHTML = `
+        <i data-lucide="search"></i>
+        <strong>${escapeHtml(title)}</strong>
+        <label>
+          <input type="search" data-module-search-input="${escapeHtml(moduleId)}" placeholder="在本模块内输入关键词，也可语音输入" />
+        </label>
+        <button class="module-search-go" type="button" data-module-search-go="${escapeHtml(moduleId)}" aria-label="执行模块搜索">
+          <i data-lucide="corner-down-left"></i>
+        </button>
+      `;
+      const heading = module.querySelector(":scope > .panel-heading");
+      if (heading) {
+        heading.insertAdjacentElement("afterend", strip);
+      } else {
+        module.insertAdjacentElement("afterbegin", strip);
+      }
+    });
+  }
+
+  function refreshInteractiveControls(scope = document) {
+    renderModuleSearchBars();
+    enhanceSearchInputs(scope);
+    refreshIcons();
   }
 
   function inferCompanyType(company = "") {
@@ -342,6 +563,97 @@
     if (completion >= 90) return "已接近完整";
     if (completion >= 75) return "先补结构";
     return "人工梳理";
+  }
+
+  function inferCreationTool(item) {
+    const text = [item.format, item.workType, item.formatTags?.join(" "), item.title].join(" ").toLowerCase();
+    if (/ppt|pptx|keynote|proposal|方案|提案/.test(text)) return "PPT/Keynote/提案工具";
+    if (/doc|docx|word|article|文章|制度/.test(text)) return "Word/文档编辑器";
+    if (/xls|xlsx|csv|excel|spreadsheet|table/.test(text)) return "Excel/电子表格";
+    if (/video|mp4|mov|影视|广告片|宣传片/.test(text)) return "剪辑软件/视频工程";
+    if (/audio|mp3|wav|m4a|录音|转写/.test(text)) return "录音设备/语音转写";
+    if (/logo|vi|ai|psd|png|jpg|image|设计|标识/.test(text)) return "AI/PSD/图片设计工具";
+    if (/mail|email|eml|msg|邮件/.test(text)) return "邮箱系统/附件归档";
+    if (/pdf|scan|扫描|合同/.test(text)) return "扫描/OCR/PDF 工具";
+    if (/code|html|js|json|源码/.test(text)) return "代码仓库/开发工具";
+    return item.format || "未知创作工具";
+  }
+
+  function inferContentMetrics(item) {
+    const text = [item.subtitle, item.summary, item.sizeLabel, item.format, item.workType].join(" ");
+    const wordMatch = text.match(/([0-9,，]{2,})\s*字/);
+    const paragraphMatch = text.match(/([0-9]{1,3})\s*段/);
+    const headingMatch = text.match(/([0-9]{1,3})\s*个?(?:一级)?标题/);
+    const minuteMatch = text.match(/([0-9]{1,4})\s*分钟/);
+    const pageMatch = text.match(/([0-9]{1,4})\s*(?:页|P)/i);
+    const wordCount = wordMatch?.[1]?.replace(/[，,]/g, "");
+    const paragraphCount = paragraphMatch?.[1];
+    const headingCount = headingMatch?.[1];
+    const duration = minuteMatch?.[1];
+    const pages = pageMatch?.[1];
+
+    if (wordCount || paragraphCount || headingCount) {
+      return {
+        wordCountText: wordCount ? `${Number(wordCount).toLocaleString("zh-CN")} 字` : "待统计字数",
+        structureText: `${paragraphCount || "待识别"} 段 / ${headingCount || "待识别"} 个标题`,
+        nodeText: `${headingCount || paragraphCount || "待识别"} 个内容节点`,
+      };
+    }
+
+    if (duration || item.preview === "video" || item.formatTags?.includes("video")) {
+      return {
+        wordCountText: duration ? `${duration} 分钟素材` : "待识别时长",
+        structureText: "脚本 / 字幕 / 镜头节点",
+        nodeText: item.completionScore >= 95 ? "交付节点完整" : "待补齐镜头/字幕节点",
+      };
+    }
+
+    if (item.preview === "audio" || item.formatTags?.includes("audio")) {
+      return {
+        wordCountText: duration ? `${duration} 分钟录音` : "待识别时长",
+        structureText: "说话人 / 议题 / 转写段落",
+        nodeText: item.completionScore >= 90 ? "转写节点基本完整" : "待校对转写节点",
+      };
+    }
+
+    if (item.preview === "image" || item.formatTags?.includes("image")) {
+      return {
+        wordCountText: "图片/视觉资产",
+        structureText: "主图 / 源文件 / 应用规范",
+        nodeText: "视觉节点可识别",
+      };
+    }
+
+    return {
+      wordCountText: pages ? `${pages} 页` : item.sizeLabel || "待统计体量",
+      structureText: "目录 / 正文 / 附件节点",
+      nodeText: item.completionScore >= 90 ? "文档节点基本完整" : "待补齐文档节点",
+    };
+  }
+
+  function inferPurpose(item) {
+    const text = [item.workType, item.projectType, item.status, item.title, item.summary].join(" ");
+    if (/投标|标书|招采/.test(text)) return "投标交付/资质沉淀";
+    if (/合同|协议|采购|供应商/.test(text)) return "合同留档/法务审计";
+    if (/财务|经营|报表|数据/.test(text)) return "经营分析/财务复盘";
+    if (/视频|宣传片|广告片|影视/.test(text)) return "传播成片/风格样本";
+    if (/LOGO|VI|标识|品牌资产|视觉/.test(text)) return "品牌资产/设计规范";
+    if (/录音|会议|转写|纪要/.test(text)) return "会议纪要/事实沉淀";
+    if (/方案|提案|策划|发布会/.test(text)) return "客户提案/项目复用";
+    if (/邮件|附件|报价/.test(text)) return "往来凭证/项目证据链";
+    return "归档检索/知识复用";
+  }
+
+  function inferContributionMode(item) {
+    const people = uniqueValues([item.author, item.owner, ...(item.employees || [])]);
+    if (people.length >= 4) return `多人完成 · ${people.length} 人`;
+    if (people.length >= 2) return `联合作者 · ${people.join("、")}`;
+    return `单人完成 · ${people[0] || item.author || "待登记"}`;
+  }
+
+  function inferSelfCheckScore(item, completionScore, qualityScore) {
+    const reviewBoost = /已归档|完整|经典|交付|品牌资产/.test([item.status, item.subtitle].join(" ")) ? 4 : 0;
+    return clampScore(Math.round(completionScore * 0.48 + qualityScore * 0.42 + reviewBoost), 75);
   }
 
   function securityLevelName(level = "") {
@@ -510,6 +822,8 @@
     const completionScore = clampScore(item.completionScore ?? inferCompletionScore(item), 75);
     const qualityScore = inferQualityScore(item);
     const repairCandidate = Boolean(item.aiRepairCandidate ?? isAiRepairCandidate(item, completionScore));
+    const contentMetrics = inferContentMetrics(item);
+    const selfCheckScore = clampScore(item.selfCheckScore ?? inferSelfCheckScore(item, completionScore, qualityScore), 75);
     return {
       ...item,
       companyType: item.companyType || inferCompanyType(item.company),
@@ -527,8 +841,17 @@
       completionGrade: gradeFromScore(completionScore),
       qualityScore,
       qualityGrade: gradeFromScore(qualityScore),
+      selfCheckScore,
+      selfCheckGrade: gradeFromScore(selfCheckScore),
       aiRepairCandidate: repairCandidate,
       aiRepairLabel: item.aiRepairLabel || aiRepairLabel(item, completionScore),
+      creationTool: item.creationTool || inferCreationTool(item),
+      contentIntro: item.contentIntro || item.summary,
+      wordCountText: item.wordCountText || contentMetrics.wordCountText,
+      structureText: item.structureText || contentMetrics.structureText,
+      nodeText: item.nodeText || contentMetrics.nodeText,
+      purposeText: item.purposeText || inferPurpose(item),
+      contributionMode: item.contributionMode || inferContributionMode(item),
       securityLevelName: item.securityLevelName || securityLevelName(item.level),
       storageSourceType: item.storageSourceType || storageProfile.storageSourceType,
       storageProvider: item.storageProvider || storageProfile.storageProvider,
@@ -571,6 +894,15 @@
       .join("")}`;
   }
 
+  function hexLuminance(hex) {
+    const normalized = hex.replace("#", "");
+    const value = Number.parseInt(normalized, 16);
+    const r = ((value >> 16) & 255) / 255;
+    const g = ((value >> 8) & 255) / 255;
+    const b = (value & 255) / 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
   function defaultAppearance() {
     const palette = config.appearance.palettes[0];
     const font = config.appearance.fonts[0];
@@ -587,7 +919,7 @@
   function loadAppearance() {
     const defaults = defaultAppearance();
     try {
-      return { ...defaults, ...JSON.parse(localStorage.getItem("hws-archive-appearance-v2") || "{}") };
+      return { ...defaults, ...JSON.parse(localStorage.getItem("hws-archive-appearance-v5") || "{}") };
     } catch {
       return defaults;
     }
@@ -595,7 +927,7 @@
 
   function saveAppearance(settings) {
     try {
-      localStorage.setItem("hws-archive-appearance-v2", JSON.stringify(settings));
+      localStorage.setItem("hws-archive-appearance-v5", JSON.stringify(settings));
     } catch {
       // The prototype should still work when browser storage is unavailable.
     }
@@ -611,21 +943,26 @@
     const root = document.documentElement;
     root.style.setProperty("--teal", settings.accent);
     root.style.setProperty("--teal-rgb", hexToRgb(settings.accent));
-    root.style.setProperty("--teal-soft", lightenHex(settings.accent));
+    root.style.setProperty("--teal-soft", selectedPalette?.accentSoft || lightenHex(settings.accent));
     root.style.setProperty("--sidebar", settings.sidebar);
     root.style.setProperty("--sidebar-2", sidebarActive);
+    const darkSidebar = hexLuminance(settings.sidebar) < 0.5;
+    root.style.setProperty("--sidebar-ink", darkSidebar ? "#f6fffb" : "#1f2a27");
+    root.style.setProperty("--sidebar-muted", darkSidebar ? "rgba(255, 255, 255, 0.58)" : "#65736c");
+    root.style.setProperty("--sidebar-subtle", darkSidebar ? "rgba(255, 255, 255, 0.1)" : "#e3eae5");
     root.style.setProperty("--page", settings.page);
     root.style.setProperty("--font-ui", selectedFont.value);
     root.style.setProperty("--font-size-base", `${settings.fontSize}px`);
 
     dom.accentColorInput.value = settings.accent;
+    if (dom.quickAccentColorInput) dom.quickAccentColorInput.value = settings.accent;
     dom.sidebarColorInput.value = settings.sidebar;
     dom.pageColorInput.value = settings.page;
     dom.fontSelect.value = settings.font;
     dom.fontSizeRange.value = settings.fontSize;
     dom.fontSizeValue.textContent = `${settings.fontSize}px`;
 
-    dom.paletteRow.querySelectorAll(".palette-button").forEach((button) => {
+    document.querySelectorAll(".palette-button[data-palette]").forEach((button) => {
       button.classList.toggle("active", button.dataset.palette === settings.palette);
     });
 
@@ -634,7 +971,7 @@
 
   function currentAppearance() {
     return {
-      palette: dom.paletteRow.querySelector(".palette-button.active")?.dataset.palette || "custom",
+      palette: document.querySelector(".palette-button.active[data-palette]")?.dataset.palette || "custom",
       accent: dom.accentColorInput.value,
       sidebar: dom.sidebarColorInput.value,
       page: dom.pageColorInput.value,
@@ -719,9 +1056,13 @@
       .join("");
 
     renderSecondaryMenus();
+    renderLibraryBoard();
+    renderContentDirectory();
     renderSaasConsole();
     renderFileTypeLibrary();
     renderFormulaExamples();
+    renderResiliencePlans();
+    renderAgentConnectors();
 
     dom.intakeSourceGrid.innerHTML = config.intakeSources
       .map(
@@ -747,6 +1088,8 @@
       .join("");
 
     renderSelectedIntake(config.intakeSources[0]);
+    renderImportPolicies();
+    renderTerminalPorts();
 
     dom.intakeWorkflow.innerHTML = config.intakeWorkflow
       .map(
@@ -767,16 +1110,18 @@
       .map((column) => `<th>${escapeHtml(column.label)}</th>`)
       .join("");
 
-    dom.paletteRow.innerHTML = config.appearance.palettes
+    const paletteMarkup = config.appearance.palettes
       .map(
         (palette) => `
-          <button class="palette-button" type="button" data-palette="${escapeHtml(palette.key)}">
+          <button class="palette-button" type="button" title="${escapeHtml(palette.label)}" data-palette="${escapeHtml(palette.key)}">
             <span class="swatch" style="background:${escapeHtml(palette.accent)}"></span>
             <span>${escapeHtml(palette.label)}</span>
           </button>
         `,
       )
       .join("");
+    dom.paletteRow.innerHTML = paletteMarkup;
+    if (dom.quickPaletteRow) dom.quickPaletteRow.innerHTML = paletteMarkup;
 
     dom.fontSelect.innerHTML = config.appearance.fonts
       .map((font) => `<option value="${escapeHtml(font.key)}">${escapeHtml(font.label)}</option>`)
@@ -787,6 +1132,7 @@
     arrangeModulesForSection();
     applyModuleLayouts();
     renderLayoutWorkbench();
+    refreshInteractiveControls();
   }
 
   function renderNavList() {
@@ -865,9 +1211,37 @@
     return state.menuLayout.collapsed ? "panel-right-open" : "panel-left-close";
   }
 
+  function isMenuHoverMode() {
+    return state.menuLayout.mode === "hover" && state.menuLayout.position === "left";
+  }
+
+  function setMenuHoverOpen(open) {
+    window.clearTimeout(menuHoverCloseTimer);
+    dom.appShell?.classList.toggle("menu-hover-open", Boolean(open) && isMenuHoverMode());
+  }
+
+  function scheduleMenuHoverClose() {
+    window.clearTimeout(menuHoverCloseTimer);
+    if (!isMenuHoverMode()) return;
+    menuHoverCloseTimer = window.setTimeout(() => {
+      dom.appShell?.classList.remove("menu-hover-open");
+    }, 1000);
+  }
+
+  function isPointInSidebar(event) {
+    const rect = dom.sidebar?.getBoundingClientRect();
+    if (!rect) return false;
+    return event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+  }
+
   function applyMenuLayout(shouldSave = true) {
     const position = menuPositionOptions.includes(state.menuLayout.position) ? state.menuLayout.position : "left";
-    const collapsed = Boolean(state.menuLayout.collapsed);
+    const mode = menuDisplayModeOptions.includes(state.menuLayout.mode) ? state.menuLayout.mode : "fixed";
+    const hoverMode = mode === "hover" && position === "left";
+    const collapsed = hoverMode ? false : Boolean(state.menuLayout.collapsed);
+    state.menuLayout.position = position;
+    state.menuLayout.mode = hoverMode ? "hover" : "fixed";
+    state.menuLayout.collapsed = collapsed;
 
     dom.appShell?.classList.remove(
       "menu-left",
@@ -875,22 +1249,39 @@
       "menu-right",
       "menu-bottom",
       "menu-collapsed",
+      "menu-hover",
+      "menu-hover-open",
     );
     dom.appShell?.classList.add(`menu-${position}`);
     dom.appShell?.classList.toggle("menu-collapsed", collapsed);
+    dom.appShell?.classList.toggle("menu-hover", hoverMode);
+    dom.appShell?.classList.toggle("menu-hover-open", false);
     dom.appShell?.setAttribute("data-menu-position", position);
+    dom.appShell?.setAttribute("data-menu-mode", hoverMode ? "hover" : "fixed");
 
     dom.menuPositionControls?.querySelectorAll("button").forEach((button) => {
       button.classList.toggle("active", button.dataset.menuPosition === position);
     });
 
+    dom.menuDisplayModeControls?.querySelectorAll("button").forEach((button) => {
+      button.classList.toggle("active", button.dataset.menuMode === state.menuLayout.mode);
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.menuMode === state.menuLayout.mode),
+      );
+    });
+
     if (dom.menuCollapseToggle) {
-      dom.menuCollapseToggle.classList.toggle("active", collapsed);
+      dom.menuCollapseToggle.disabled = hoverMode;
+      dom.menuCollapseToggle.classList.toggle("active", collapsed || hoverMode);
       dom.menuCollapseToggle.innerHTML = `
-        <i data-lucide="${escapeHtml(menuCollapseIcon())}"></i>
-        <span>${collapsed ? "展开菜单" : "折叠菜单"}</span>
+        <i data-lucide="${escapeHtml(hoverMode ? "panel-left-open" : menuCollapseIcon())}"></i>
+        <span>${hoverMode ? "靠近弹出" : collapsed ? "展开菜单" : "折叠菜单"}</span>
       `;
-      dom.menuCollapseToggle.setAttribute("aria-label", `${menuLayoutLabel(position)}菜单${collapsed ? "已折叠" : "已展开"}`);
+      dom.menuCollapseToggle.setAttribute(
+        "aria-label",
+        hoverMode ? "左侧菜单已设置为隐形悬停弹出" : `${menuLayoutLabel(position)}菜单${collapsed ? "已折叠" : "已展开"}`,
+      );
     }
 
     if (shouldSave) saveMenuLayout();
@@ -945,6 +1336,7 @@
         `,
       )
       .join("");
+    enhanceSearchInputs(dom.secondaryMenuGrid);
     refreshIcons();
   }
 
@@ -1069,6 +1461,157 @@
         `,
       )
       .join("");
+  }
+
+  function countUnique(values) {
+    return uniqueValues(values).length;
+  }
+
+  function formatCount(predicate) {
+    return archives.filter(predicate).length;
+  }
+
+  function libraryNames(values, limit = 8) {
+    const names = uniqueValues(values).slice(0, limit);
+    return names.length ? names : ["等待真实数据"];
+  }
+
+  function renderLibraryBoard() {
+    if (!dom.libraryBoardGrid) return;
+    const cards = [
+      { title: "公司/项目公司", value: countUnique(archives.map((item) => item.company)), names: libraryNames(archives.map((item) => item.company)), query: "公司 项目公司" },
+      { title: "部门", value: countUnique(archives.map((item) => item.department)), names: libraryNames(archives.map((item) => item.department)), query: "部门" },
+      { title: "员工/作者", value: countUnique(archives.flatMap((item) => [item.author, item.owner, ...(item.employees || [])])), names: libraryNames(archives.flatMap((item) => [item.author, item.owner, ...(item.employees || [])])), query: "员工 作者" },
+      { title: "项目名称", value: countUnique(archives.map((item) => item.project)), names: libraryNames(archives.map((item) => item.project)), query: "项目" },
+      { title: "作品/内容资产", value: archives.length, names: libraryNames(archives.map((item) => item.workType)), query: "作品" },
+      { title: "经典/优秀案例", value: formatCount((item) => /经典|优秀|示范/.test([item.qualityLevel, item.status, item.title].join(" "))), names: ["经典案例", "优秀案例", "示范文档", "经典制度"], query: "经典 优秀 示范" },
+      { title: "视频/影视", value: formatCount((item) => item.formatTags?.includes("video") || /视频|MP4|MOV|影视/.test([item.workType, item.format].join(" "))), names: ["MP4", "MOV", "广告片", "发布会视频"], query: "视频" },
+      { title: "Word/文档", value: formatCount((item) => item.formatTags?.includes("word") || /DOC|Word|文档/.test([item.workType, item.format].join(" "))), names: ["DOCX", "Word", "述职报告", "制度文档"], query: "Word 文档" },
+      { title: "合同/协议", value: formatCount((item) => item.formatTags?.includes("contract") || /合同|协议|电子签/.test([item.workType, item.title, item.summary].join(" "))), names: ["采购合同", "服务协议", "电子签", "客户合同"], query: "合同 协议" },
+      { title: "邮件/附件", value: formatCount((item) => item.formatTags?.includes("email") || /邮件|EML|MSG|MBOX/.test([item.workType, item.format].join(" "))), names: ["EML", "MSG", "MBOX", "邮件附件"], query: "邮件" },
+      { title: "图片/照片", value: formatCount((item) => item.formatTags?.includes("image") || /图片|照片|JPG|PNG|HEIC/.test([item.workType, item.format].join(" "))), names: ["JPG", "PNG", "HEIC", "RAW"], query: "图片 照片" },
+      { title: "录音/音频", value: formatCount((item) => item.formatTags?.includes("audio") || /录音|音频|MP3|WAV/.test([item.workType, item.format].join(" "))), names: ["MP3", "WAV", "M4A", "转写"], query: "录音 音频" },
+      { title: "PPT/提案", value: formatCount((item) => item.formatTags?.includes("ppt") || /PPT|PPTX|提案|方案/.test([item.workType, item.format, item.title].join(" "))), names: ["PPTX", "提案", "方案", "策划"], query: "PPT 方案" },
+      { title: "Excel/表格", value: formatCount((item) => item.formatTags?.includes("excel") || /Excel|XLS|CSV|表格/.test([item.workType, item.format].join(" "))), names: ["XLSX", "CSV", "财务表", "数据表"], query: "Excel 表格" },
+      { title: "财务/人事/制度", value: formatCount((item) => /财务|人事|制度|员工|组织/.test([item.department, item.workType, item.title, item.summary].join(" "))), names: ["财务档案", "人事档案", "组织架构", "制度库"], query: "财务 人事 制度" },
+      { title: "扫描/PDF/备份", value: formatCount((item) => /PDF|扫描|OCR|ZIP|RAR|备份/.test([item.workType, item.format, item.title].join(" "))), names: ["PDF", "扫描件", "OCR", "备份包"], query: "PDF 扫描 备份" },
+    ];
+    if (dom.libraryBoardCount) dom.libraryBoardCount.textContent = `${cards.length} 类档案指标`;
+    dom.libraryBoardGrid.innerHTML = cards
+      .map(
+        (card) => `
+          <article class="library-card">
+            <button type="button" data-library-query="${escapeHtml(card.query)}">
+              <strong>${escapeHtml(card.value)}</strong>
+              <span>${escapeHtml(card.title)}</span>
+            </button>
+            <div>
+              ${card.names.map((name) => `<em>${escapeHtml(name)}</em>`).join("")}
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+  }
+
+  function directoryItemText(item) {
+    return [
+      item.level1,
+      item.count,
+      ...(item.children || []).flatMap((child) => [child.level2, child.level3, child.level4]),
+    ]
+      .join(" ")
+      .toLowerCase();
+  }
+
+  function renderContentDirectory() {
+    if (!dom.contentDirectoryGrid) return;
+    const term = normalizeQuery(dom.contentDirectorySearchInput?.value || "");
+    const terms = term.split(/\s+/).filter(Boolean);
+    const directories = (config.contentDirectory || []).filter((item) => {
+      if (!terms.length) return true;
+      const haystack = directoryItemText(item);
+      return terms.every((value) => haystack.includes(value));
+    });
+
+    dom.contentDirectoryGrid.innerHTML = directories.length
+      ? directories
+          .map(
+            (item) => `
+              <article class="directory-card">
+                <div class="directory-head">
+                  <span><i data-lucide="${escapeHtml(item.icon || "library-big")}"></i></span>
+                  <div>
+                    <p class="eyebrow">一级目录</p>
+                    <h3>${escapeHtml(item.level1)}</h3>
+                  </div>
+                  <em>${escapeHtml(item.count)}</em>
+                </div>
+                <div class="directory-path-list">
+                  ${(item.children || [])
+                    .map(
+                      (child) => `
+                        <button type="button" data-directory-query="${escapeHtml([item.level1, child.level2, child.level3, child.level4].join(" "))}">
+                          <b>${escapeHtml(child.level2)}</b>
+                          <span>${escapeHtml(child.level3)}</span>
+                          <i>${escapeHtml(child.level4)}</i>
+                        </button>
+                      `,
+                    )
+                    .join("")}
+                </div>
+              </article>
+            `,
+          )
+          .join("")
+      : '<div class="empty-state">当前目录关键词没有匹配结果</div>';
+    refreshIcons();
+  }
+
+  function renderResiliencePlans() {
+    if (!dom.resiliencePlanGrid) return;
+    dom.resiliencePlanGrid.innerHTML = (config.resiliencePlans || [])
+      .map(
+        (plan) => `
+          <article class="resilience-card">
+            <div class="resilience-icon"><i data-lucide="${escapeHtml(plan.icon || "database-backup")}"></i></div>
+            <div>
+              <h3>${escapeHtml(plan.name)}</h3>
+              <p>${escapeHtml(plan.scope)}</p>
+              <div class="resilience-meta">
+                <span class="danger">${escapeHtml(plan.permission)}</span>
+                <span>${escapeHtml(plan.approval)}</span>
+                <span>${escapeHtml(plan.status)}</span>
+              </div>
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+    refreshIcons();
+  }
+
+  function renderAgentConnectors() {
+    if (!dom.agentConnectorGrid) return;
+    dom.agentConnectorGrid.innerHTML = (config.agentConnectors || [])
+      .map(
+        (agent) => `
+          <article class="agent-card">
+            <div class="agent-card-head">
+              <span><i data-lucide="${escapeHtml(agent.icon || "bot")}"></i></span>
+              <em>${escapeHtml(agent.priority)}</em>
+            </div>
+            <h3>${escapeHtml(agent.name)}</h3>
+            <p>${escapeHtml(agent.role)}</p>
+            <div class="agent-meta">
+              <span>${escapeHtml(agent.permission)}</span>
+              <span>${escapeHtml(agent.status)}</span>
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+    refreshIcons();
   }
 
   function renderFormulaExamples() {
@@ -1302,8 +1845,18 @@
 
   function queryTerms(value) {
     return normalizeQuery(value)
+      .replace(/[+＋*＊#＃]/g, " ")
       .split(/\s+/)
       .map((term) => term.replace(/^(找|看|查|搜索|播放)/, ""))
+      .filter((term) => term.length >= 2 && !term.startsWith("-") && !term.startsWith("－"));
+  }
+
+  function excludedTerms(value) {
+    const normalized = normalizeQuery(value).replace(/[+＋*＊#＃]/g, " ");
+    return normalized
+      .split(/\s+/)
+      .filter((term) => term.startsWith("-") || term.startsWith("－"))
+      .map((term) => term.slice(1))
       .filter((term) => term.length >= 2);
   }
 
@@ -1335,7 +1888,15 @@
       item.qualityLevel,
       item.completionScore,
       item.qualityScore,
+      item.selfCheckScore,
       item.aiRepairLabel,
+      item.creationTool,
+      item.contentIntro,
+      item.wordCountText,
+      item.structureText,
+      item.nodeText,
+      item.purposeText,
+      item.contributionMode,
       item.securityLevelName,
       item.storageSourceType,
       item.storageProvider,
@@ -1455,13 +2016,16 @@
 
   function getFilteredArchives() {
     const terms = queryTerms(dom.searchInput.value);
+    const excluded = excludedTerms(dom.searchInput.value);
 
     return archives.filter((item) => {
       const haystack = archiveText(item);
-      const queryMatch = !terms.length || terms.some((term) => haystack.includes(term));
+      const queryMatch = !terms.length || terms.every((term) => haystack.includes(term));
+      const excludedMatch = excluded.some((term) => haystack.includes(term));
       return (
         quickFilterMatches(item) &&
         queryMatch &&
+        !excludedMatch &&
         localIndexMatches(item) &&
         fieldMatches(item) &&
         workTypeMatches(item) &&
@@ -1479,14 +2043,48 @@
     return "video";
   }
 
+  function scoreMini(label, value, grade) {
+    return `
+      <span class="mini-score ${escapeHtml(grade)}">
+        <b>${escapeHtml(label)}</b>
+        <em>${escapeHtml(value)}</em>
+      </span>
+    `;
+  }
+
+  function renderArchiveTitleCard(item) {
+    return `
+      <div class="title-cell archive-identity-card">
+        <div class="identity-title-row">
+          <strong>${escapeHtml(item.title)}</strong>
+          <span>${escapeHtml(item.format)}</span>
+        </div>
+        <small>${escapeHtml(item.subtitle)}</small>
+        <p>${escapeHtml(item.contentIntro)}</p>
+        <div class="identity-meta-grid">
+          <span>作者：${escapeHtml(item.author)}</span>
+          <span>创作：${escapeHtml(item.creationTool)}</span>
+          <span>时间：${escapeHtml(item.createdAt || item.period)}</span>
+          <span>体量：${escapeHtml(item.wordCountText)}</span>
+          <span>节点：${escapeHtml(item.nodeText)}</span>
+          <span>用途：${escapeHtml(item.purposeText)}</span>
+          <span>协作：${escapeHtml(item.contributionMode)}</span>
+          <span>完稿：${escapeHtml(item.assetStage)}</span>
+        </div>
+        <div class="identity-score-row">
+          ${scoreMini("完整", `${item.completionScore}%`, item.completionGrade)}
+          ${scoreMini("质量", item.qualityScore, item.qualityGrade)}
+          ${scoreMini("自检", item.selfCheckScore, item.selfCheckGrade)}
+        </div>
+      </div>
+    `;
+  }
+
   function renderCell(item, column) {
     if (column.key === "title") {
       return `
-        <td>
-          <div class="title-cell">
-            <strong>${escapeHtml(item.title)}</strong>
-            <span>${escapeHtml(item.subtitle)}</span>
-          </div>
+        <td class="archive-title-column">
+          ${renderArchiveTitleCard(item)}
         </td>
       `;
     }
@@ -1505,6 +2103,10 @@
 
     if (column.key === "qualityScore") {
       return `<td><span class="tag score-tag ${escapeHtml(item.qualityGrade)}">${escapeHtml(item.qualityScore)}</span></td>`;
+    }
+
+    if (column.key === "selfCheckScore") {
+      return `<td><span class="tag score-tag ${escapeHtml(item.selfCheckGrade)}">${escapeHtml(item.selfCheckScore)}</span></td>`;
     }
 
     if (column.key === "aiRepairLabel") {
@@ -1607,6 +2209,19 @@
       </div>
     `;
 
+    const profileRows = [
+      ["副标题", item.subtitle],
+      ["简介", item.contentIntro],
+      ["创作工具", item.creationTool],
+      ["创作时间", item.createdAt || item.period],
+      ["体量", item.wordCountText],
+      ["结构", item.structureText],
+      ["节点", item.nodeText],
+      ["用途", item.purposeText],
+      ["协作", item.contributionMode],
+      ["完稿状态", item.assetStage],
+    ];
+
     const metaItems = [
       `项目：${item.project}`,
       `项目类型：${item.projectType}`,
@@ -1626,6 +2241,7 @@
       `作品等级：${item.qualityLevel}`,
       `完成度评分：${item.completionScore}%`,
       `作品水准评分：${item.qualityScore}`,
+      `自评/自检评分：${item.selfCheckScore}`,
       `AI 修复候选：${item.aiRepairLabel}`,
       `格式：${item.format}`,
       `存储来源：${item.storageSourceType}`,
@@ -1643,9 +2259,27 @@
     if (item.modifiedAt) metaItems.push(`修改：${item.modifiedAt}`);
     if (item.relativePath) metaItems.push(`路径：${item.relativePath}`);
 
-    dom.previewMeta.innerHTML = metaItems
-      .map((text) => `<span class="meta-chip">${escapeHtml(text)}</span>`)
-      .join("");
+    dom.previewMeta.innerHTML = `
+      <div class="preview-profile-card">
+        <div class="profile-card-head">
+          <strong>档案画像</strong>
+          <span>${escapeHtml(item.format)} · ${escapeHtml(item.workType)}</span>
+        </div>
+        <div class="profile-row-grid">
+          ${profileRows
+            .map(([label, value]) => `<span><b>${escapeHtml(label)}</b><em>${escapeHtml(value)}</em></span>`)
+            .join("")}
+        </div>
+        <div class="identity-score-row">
+          ${scoreMini("完整", `${item.completionScore}%`, item.completionGrade)}
+          ${scoreMini("质量", item.qualityScore, item.qualityGrade)}
+          ${scoreMini("自检", item.selfCheckScore, item.selfCheckGrade)}
+        </div>
+      </div>
+      <div class="preview-chip-row">
+        ${metaItems.map((text) => `<span class="meta-chip">${escapeHtml(text)}</span>`).join("")}
+      </div>
+    `;
 
     const playButton = document.querySelector("#playButton");
     playButton.addEventListener("click", () => {
@@ -1935,6 +2569,37 @@
     refreshIcons();
   }
 
+  function renderImportPolicies() {
+    if (!dom.importActionPolicyGrid) return;
+    dom.importActionPolicyGrid.innerHTML = (config.importActionPolicies || [])
+      .map(
+        (item) => `
+          <article class="policy-card">
+            <strong>${escapeHtml(item.action)}</strong>
+            <span>${escapeHtml(item.permission)}</span>
+            <em>${escapeHtml(item.virus)}</em>
+            <i>${escapeHtml(item.audit)}</i>
+          </article>
+        `,
+      )
+      .join("");
+  }
+
+  function renderTerminalPorts() {
+    if (!dom.terminalPortGrid) return;
+    dom.terminalPortGrid.innerHTML = (config.terminalPorts || [])
+      .map(
+        (item) => `
+          <article class="terminal-card">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span>${escapeHtml(item.scope)}</span>
+            <em>${escapeHtml(item.permission)}</em>
+          </article>
+        `,
+      )
+      .join("");
+  }
+
   function setActiveButton(container, selector, dataName, value) {
     container.querySelectorAll(selector).forEach((button) => {
       button.classList.toggle("active", button.dataset[dataName] === value);
@@ -2133,7 +2798,7 @@
       dom.appearanceToggle.setAttribute("aria-expanded", String(isHidden));
     });
 
-    dom.paletteRow.addEventListener("click", (event) => {
+    const applyPaletteFromButton = (event) => {
       const button = event.target.closest(".palette-button");
       if (!button) return;
       const palette = config.appearance.palettes.find((item) => item.key === button.dataset.palette);
@@ -2145,11 +2810,22 @@
         sidebar: palette.sidebar,
         page: palette.page,
       });
-    });
+    };
+
+    dom.paletteRow.addEventListener("click", applyPaletteFromButton);
+    dom.quickPaletteRow?.addEventListener("click", applyPaletteFromButton);
 
     [dom.accentColorInput, dom.sidebarColorInput, dom.pageColorInput].forEach((input) => {
       input.addEventListener("input", () => {
         applyAppearance({ ...currentAppearance(), palette: "custom" });
+      });
+    });
+
+    dom.quickAccentColorInput?.addEventListener("input", () => {
+      applyAppearance({
+        ...currentAppearance(),
+        palette: "custom",
+        accent: dom.quickAccentColorInput.value,
       });
     });
 
@@ -2169,12 +2845,66 @@
       const button = event.target.closest("button[data-menu-position]");
       if (!button) return;
       state.menuLayout.position = button.dataset.menuPosition;
+      if (state.menuLayout.position !== "left" && state.menuLayout.mode === "hover") {
+        state.menuLayout.mode = "fixed";
+      }
+      applyMenuLayout();
+    });
+
+    dom.menuDisplayModeControls?.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-menu-mode]");
+      if (!button) return;
+      state.menuLayout.mode = button.dataset.menuMode;
+      if (state.menuLayout.mode === "hover") {
+        state.menuLayout.position = "left";
+        state.menuLayout.collapsed = false;
+      }
       applyMenuLayout();
     });
 
     dom.menuCollapseToggle?.addEventListener("click", () => {
+      if (state.menuLayout.mode === "hover") return;
       state.menuLayout.collapsed = !state.menuLayout.collapsed;
       applyMenuLayout();
+    });
+
+    dom.sidebar?.addEventListener("mouseenter", () => {
+      if (isMenuHoverMode()) setMenuHoverOpen(true);
+    });
+
+    dom.sidebar?.addEventListener("mouseleave", () => {
+      scheduleMenuHoverClose();
+    });
+
+    dom.sidebar?.addEventListener("focusin", () => {
+      if (isMenuHoverMode()) setMenuHoverOpen(true);
+    });
+
+    dom.sidebar?.addEventListener("focusout", (event) => {
+      if (dom.sidebar?.contains(event.relatedTarget)) return;
+      scheduleMenuHoverClose();
+    });
+
+    dom.sidebar?.addEventListener("dblclick", (event) => {
+      if (event.target.closest("input, textarea, select")) return;
+      const nextMode = isMenuHoverMode() ? "fixed" : "hover";
+      state.menuLayout.mode = nextMode;
+      state.menuLayout.position = "left";
+      state.menuLayout.collapsed = false;
+      applyMenuLayout();
+      if (nextMode === "hover") {
+        document.activeElement?.blur?.();
+        setMenuHoverOpen(false);
+      }
+    });
+
+    window.addEventListener("mousemove", (event) => {
+      if (!isMenuHoverMode()) return;
+      if (event.clientX <= 24 || isPointInSidebar(event)) {
+        setMenuHoverOpen(true);
+        return;
+      }
+      if (dom.appShell?.classList.contains("menu-hover-open")) scheduleMenuHoverClose();
     });
   }
 
@@ -2196,6 +2926,24 @@
     });
 
     dom.sectionSearchInput?.addEventListener("input", renderSecondaryMenus);
+    dom.contentDirectorySearchInput?.addEventListener("input", renderContentDirectory);
+
+    dom.libraryBoardGrid?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-library-query]");
+      if (!button) return;
+      dom.searchInput.value = button.dataset.libraryQuery || "";
+      renderResults();
+      scrollToModule("archiveResults");
+    });
+
+    dom.contentDirectoryGrid?.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-directory-query]");
+      if (!button) return;
+      const query = button.dataset.directoryQuery || button.textContent.trim();
+      dom.searchInput.value = query;
+      renderResults();
+      scrollToModule("archiveResults");
+    });
 
     dom.navList.addEventListener("click", (event) => {
       const button = event.target.closest(".nav-item");
@@ -2288,10 +3036,57 @@
     dom.clearFieldSearch.addEventListener("click", resetFilters);
 
     dom.voiceButton.addEventListener("click", () => {
-      dom.voiceButton.classList.toggle("listening");
-      dom.voiceButton.querySelector("span").textContent = dom.voiceButton.classList.contains("listening")
-        ? "聆听中"
-        : "语音";
+      startVoiceInput(dom.searchInput, dom.voiceButton);
+      dom.voiceButton.querySelector("span").textContent = "语音";
+    });
+
+    document.addEventListener("click", (event) => {
+      const voiceButton = event.target.closest(".input-voice-button");
+      if (voiceButton) {
+        const input = voiceButton.closest(".input-shell")?.querySelector("input");
+        if (input) startVoiceInput(input, voiceButton);
+        return;
+      }
+
+      const suggestButton = event.target.closest(".input-suggest-button");
+      if (suggestButton) {
+        const input = suggestButton.closest(".input-shell")?.querySelector("input");
+        if (input) openSuggestionMenu(input, suggestButton);
+        return;
+      }
+
+      const moduleGo = event.target.closest("[data-module-search-go]");
+      if (moduleGo) {
+        const moduleId = moduleGo.dataset.moduleSearchGo;
+        const input = document.querySelector(`[data-module-search-input="${moduleId}"]`);
+        const value = input?.value.trim() || "";
+        if (value && dom.searchInput) {
+          dom.searchInput.value = value;
+          renderResults();
+        }
+        scrollToModule(moduleId);
+        closeSuggestionMenu();
+        return;
+      }
+
+      if (!event.target.closest(".input-suggestion-menu")) closeSuggestionMenu();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeSuggestionMenu();
+        return;
+      }
+      const input = event.target.closest("[data-module-search-input]");
+      if (input && event.key === "Enter") {
+        const moduleId = input.dataset.moduleSearchInput;
+        if (input.value.trim() && dom.searchInput) {
+          dom.searchInput.value = input.value.trim();
+          renderResults();
+        }
+        scrollToModule(moduleId);
+        closeSuggestionMenu();
+      }
     });
 
     bindLayoutWorkbenchEvents();
@@ -2304,5 +3099,5 @@
   bindEvents();
   renderResults();
   renderFinishList();
-  refreshIcons();
+  refreshInteractiveControls();
 })();
