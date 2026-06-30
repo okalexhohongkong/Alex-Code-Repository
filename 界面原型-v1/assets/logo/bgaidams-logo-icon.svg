@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">BG AI DAMS Logo Icon</title>
+  <desc id="desc">Logo icon for Black Guard AI Digital Archive Management System.</desc>
+  <defs>
+    <linearGradient id="bg" x1="72" y1="48" x2="440" y2="464" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10231f"/>
+      <stop offset="0.58" stop-color="#07110f"/>
+      <stop offset="1" stop-color="#061c28"/>
+    </linearGradient>
+    <linearGradient id="shield" x1="136" y1="86" x2="388" y2="426" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#21a66d"/>
+      <stop offset="1" stop-color="#0b5e45"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="198" y1="166" x2="342" y2="348" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3aa7ff"/>
+      <stop offset="1" stop-color="#0f63ad"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M256 54 389 102v122c0 96-53 164-133 217-80-53-133-121-133-217V102L256 54Z" fill="url(#shield)"/>
+  <path d="M256 82 359 119v99c0 78-38 132-103 178-65-46-103-100-103-178v-99L256 82Z" fill="#07110f" opacity=".78"/>
+
+  <path d="M166 174h180a18 18 0 0 1 18 18v118a18 18 0 0 1-18 18H166a18 18 0 0 1-18-18V192a18 18 0 0 1 18-18Z" fill="#f6fbf8"/>
+  <path d="M176 206h160v34H176zM176 258h160v34H176z" fill="#dcece5"/>
+  <path d="M202 221h64M202 273h64" stroke="#0b5e45" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="316" cy="266" r="38" fill="url(#blue)"/>
+  <path d="M316 242c14 0 24 10 24 24s-10 24-24 24-24-10-24-24 10-24 24-24Z" fill="#07110f" opacity=".38"/>
+  <path d="M316 248v36M298 266h36" stroke="#f6fbf8" stroke-width="9" stroke-linecap="round"/>
+
+  <path d="M132 144h-22M402 144h-22M118 368h34M394 368h-34" stroke="#37d38b" stroke-width="10" stroke-linecap="round" opacity=".74"/>
+  <path d="M166 388c31 28 60 47 90 66 30-19 59-38 90-66" fill="none" stroke="#1f9f72" stroke-width="12" stroke-linecap="round"/>
+
+  <text x="256" y="128" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="800" letter-spacing="2" fill="#f6fbf8">BG</text>
+  <text x="256" y="376" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="800" letter-spacing="3" fill="#f6fbf8">AI DAMS</text>
+</svg>

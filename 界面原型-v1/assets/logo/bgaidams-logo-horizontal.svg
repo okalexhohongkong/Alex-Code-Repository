@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 320" role="img" aria-labelledby="title desc">
+  <title id="title">BG AI DAMS Horizontal Logo</title>
+  <desc id="desc">Horizontal logo for Black Guard AI Digital Archive Management System.</desc>
+  <defs>
+    <linearGradient id="panel" x1="0" y1="0" x2="1180" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f7fbfa"/>
+      <stop offset="1" stop-color="#eef6f4"/>
+    </linearGradient>
+    <linearGradient id="markBg" x1="38" y1="34" x2="282" y2="286" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#112823"/>
+      <stop offset="1" stop-color="#07110f"/>
+    </linearGradient>
+    <linearGradient id="markShield" x1="86" y1="48" x2="236" y2="266" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#21a66d"/>
+      <stop offset="1" stop-color="#0b5e45"/>
+    </linearGradient>
+    <linearGradient id="dataBlue" x1="132" y1="112" x2="210" y2="214" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3aa7ff"/>
+      <stop offset="1" stop-color="#0f63ad"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1180" height="320" rx="34" fill="url(#panel)"/>
+  <g transform="translate(38 34)">
+    <rect width="252" height="252" rx="58" fill="url(#markBg)"/>
+    <path d="M126 24 196 50v67c0 54-27 93-70 122-43-29-70-68-70-122V50l70-26Z" fill="url(#markShield)"/>
+    <path d="M126 40 181 60v55c0 42-20 72-55 98-35-26-55-56-55-98V60l55-20Z" fill="#07110f" opacity=".74"/>
+    <path d="M73 96h106a12 12 0 0 1 12 12v70a12 12 0 0 1-12 12H73a12 12 0 0 1-12-12v-70a12 12 0 0 1 12-12Z" fill="#f6fbf8"/>
+    <path d="M78 115h94v18H78zM78 146h94v18H78z" fill="#dcece5"/>
+    <path d="M91 124h38M91 155h38" stroke="#0b5e45" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="159" cy="150" r="23" fill="url(#dataBlue)"/>
+    <path d="M159 138v24M147 150h24" stroke="#f6fbf8" stroke-width="6" stroke-linecap="round"/>
+    <text x="126" y="78" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="800" letter-spacing="1" fill="#f6fbf8">BG</text>
+    <text x="126" y="224" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="800" letter-spacing="2" fill="#f6fbf8">AI</text>
+  </g>
+
+  <g transform="translate(342 74)">
+    <text x="0" y="70" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="900" letter-spacing="1" fill="#07110f">BG AI DAMS</text>
+    <path d="M0 98h390" stroke="#0b7f5a" stroke-width="8" stroke-linecap="round"/>
+    <text x="0" y="142" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#0b5e45">Black Guard AI Digital Archive Management System</text>
+    <text x="0" y="184" font-family="PingFang SC, Microsoft YaHei, Arial, sans-serif" font-size="25" font-weight="700" fill="#253f39">黑卫士 AI 数字档案管理系统</text>
+  </g>
+</svg>
