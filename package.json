@@ -1,8 +1,8 @@
 {
-  "name": "hws-ai-archive-demo",
+  "name": "alex-code-repository",
   "version": "1.0.0-demo",
   "private": true,
-  "description": "黑卫士 AI 数字档案管理系统可演示版本",
+  "description": "Alex代码仓｜黑卫士AI数字档案管理系统镜像仓",
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
