@@ -97,6 +97,11 @@ const server = createServer(async (request, response) => {
       return;
     }
 
+    if (["/vue", "/vue/"].includes((request.url || "/").split("?")[0])) {
+      redirect(response, "/界面原型-vue/dist/index.html");
+      return;
+    }
+
     if ((request.url || "").startsWith("/api/health")) {
       const result = await localIndexSummary();
       response.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });

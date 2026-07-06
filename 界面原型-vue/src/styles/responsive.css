@@ -1,0 +1,89 @@
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .quick-section,
+  .preview-section,
+  .progress-section {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .vue-app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-nav {
+    position: static;
+    height: auto;
+    padding: 14px;
+  }
+
+  .nav-section-list {
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .app-header,
+  .search-command {
+    grid-template-columns: 1fr;
+  }
+
+  .app-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .header-actions,
+  .mode-row {
+    width: 100%;
+  }
+
+  .mode-row button,
+  .icon-text-button {
+    flex: 1 1 150px;
+  }
+
+  .search-command {
+    display: grid;
+  }
+
+  .preview-layout,
+  .metadata-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .vue-workspace {
+    padding: 12px;
+  }
+
+  .brand-lockup {
+    align-items: flex-start;
+  }
+
+  .brand-lockup h1 {
+    font-size: 20px;
+  }
+
+  .quick-grid,
+  .progress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading,
+  .document-title-row,
+  .quick-card-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions .icon-button {
+    flex: 0 0 42px;
+  }
+}

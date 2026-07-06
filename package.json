@@ -1,12 +1,15 @@
 {
-  "name": "alex-code-repository",
+  "name": "hws-ai-archive-demo",
   "version": "1.0.0-demo",
   "private": true,
-  "description": "Alex代码仓｜黑卫士AI数字档案管理系统镜像仓",
+  "description": "黑卫士 AI 数字档案管理系统可演示版本",
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
     "dev": "node server.mjs",
+    "vue:dev": "vite --config 界面原型-vue/vite.config.js --host 127.0.0.1",
+    "vue:build": "vite build --config 界面原型-vue/vite.config.js",
+    "vue:preview": "vite preview --config 界面原型-vue/vite.config.js --host 127.0.0.1",
     "demo": "node start-demo.mjs",
     "scan": "node scan-local-index.mjs",
     "scan:choose": "node scan-selected-folder.mjs",
@@ -16,6 +19,15 @@
     "health": "node health-check.mjs",
     "open": "node open-local-app.mjs home",
     "board": "node open-local-app.mjs board",
-    "test": "node check-demo.mjs"
+    "test": "node check-demo.mjs && node check-vue-prototype.mjs",
+    "test:vue": "node check-vue-prototype.mjs"
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.23.0",
+    "vue": "^3.5.39"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.7",
+    "vite": "^8.1.3"
   }
 }
