@@ -53,6 +53,9 @@
   }
 
   .preview-layout,
+  .index-summary-grid,
+  .settings-grid,
+  .governance-flow,
   .metadata-grid {
     grid-template-columns: 1fr;
   }

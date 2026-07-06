@@ -272,11 +272,61 @@ export const accessPolicies = [
   },
 ];
 
+export const settingsHubSections = [
+  {
+    title: "AI 接入",
+    status: "待配置",
+    description: "统一管理 Open cloud agent、Hermes agent、自定义 Agent 和模型权限。",
+    items: ["模型供应商", "提示词模板", "禁训清单", "AI 修复候选"],
+  },
+  {
+    title: "平台接入",
+    status: "规划中",
+    description: "对接 Windows、Mac、Linux、iOS、安卓、小程序、鸿蒙和后台服务。",
+    items: ["端口清单", "角色终端", "统一登录", "审计回传"],
+  },
+  {
+    title: "备份容灾",
+    status: "原型中",
+    description: "管理时间胶囊、克隆机、NAS 热备份、年度增量和视频冷存储。",
+    items: ["三人会签", "增量备份", "恢复演练", "灾备台账"],
+  },
+  {
+    title: "加密文件策略",
+    status: "原型中",
+    description: "把核心参数、红色重要文件和高密文档纳入统一加密策略。",
+    items: ["核心参数文件", "红色重要文件", "水印策略", "查看授权"],
+  },
+];
+
+export const importExportRules = [
+  {
+    title: "导入必须查毒",
+    detail: "所有文件导入先进入隔离区，完成杀毒、格式识别、路径脱敏后再入库。",
+    gate: "查毒通过后入库",
+  },
+  {
+    title: "导出分级授权",
+    detail: "普通文件按角色授权，高级文件需要分级审批，最高机密禁止直接导出原件。",
+    gate: "按密级审批",
+  },
+  {
+    title: "双人授权",
+    detail: "高级文件、深度价值文件和绝密文件必须至少两名授权人同时确认查看。",
+    gate: "双人共同查看",
+  },
+  {
+    title: "台账留痕",
+    detail: "查看、导入、导出、下载和外发均写入每日台账，后续接入积分兑换。",
+    gate: "每日审计",
+  },
+];
+
 export const progressItems = [
-  { label: "Vue 重构", value: 25, status: "组织架构与权限组件推进" },
-  { label: "响应式多端", value: 26, status: "组件布局继续补齐" },
-  { label: "1500 行治理", value: 32, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 46, status: "策略矩阵已组件化" },
+  { label: "Vue 重构", value: 32, status: "真实索引和治理组件推进" },
+  { label: "响应式多端", value: 34, status: "组件布局继续补齐" },
+  { label: "1500 行治理", value: 38, status: "新增 Vue 文件合规" },
+  { label: "权限分级", value: 52, status: "策略和导入导出治理已组件化" },
 ];
 
 export const nextSteps = [

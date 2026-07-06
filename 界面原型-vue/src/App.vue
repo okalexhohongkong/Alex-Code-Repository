@@ -3,22 +3,27 @@ import { computed, ref } from "vue";
 import AccessPolicyMatrix from "./components/AccessPolicyMatrix.vue";
 import AppHeader from "./components/AppHeader.vue";
 import DocumentPreview from "./components/DocumentPreview.vue";
+import ImportExportGovernance from "./components/ImportExportGovernance.vue";
+import LocalIndexPanel from "./components/LocalIndexPanel.vue";
 import OrgStructureExplorer from "./components/OrgStructureExplorer.vue";
 import ProgressSnapshot from "./components/ProgressSnapshot.vue";
 import QuickCategoryGrid from "./components/QuickCategoryGrid.vue";
 import SearchCommand from "./components/SearchCommand.vue";
+import SettingsHub from "./components/SettingsHub.vue";
 import SidebarNav from "./components/SidebarNav.vue";
 import {
   accessPolicies,
   brand,
   documents,
   historicalOrgImports,
+  importExportRules,
   navSections,
   nextSteps,
   organizationUnits,
   progressItems,
   quickCategories,
   searchModes,
+  settingsHubSections,
 } from "./data/dashboard";
 
 const activeCategoryId = ref("company");
@@ -113,6 +118,12 @@ function toggleCategoryHidden(categoryId) {
         />
 
         <AccessPolicyMatrix :policies="accessPolicies" />
+
+        <LocalIndexPanel />
+
+        <SettingsHub :sections="settingsHubSections" />
+
+        <ImportExportGovernance :rules="importExportRules" />
 
         <ProgressSnapshot :items="progressItems" :next-steps="nextSteps" />
       </section>
