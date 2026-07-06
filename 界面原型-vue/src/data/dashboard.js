@@ -169,11 +169,114 @@ export const documents = [
   },
 ];
 
+export const organizationUnits = [
+  {
+    id: "board-office",
+    name: "董事会办公室",
+    owner: "最高授权人",
+    documentCount: 418,
+    highSecurityCount: 92,
+    scope: "董事会决议、战略文件、重大授权记录",
+    quickQuery: "按部门查文档",
+  },
+  {
+    id: "finance-center",
+    name: "财务中心",
+    owner: "财务负责人",
+    documentCount: 1260,
+    highSecurityCount: 286,
+    scope: "预算、回款、发票、税务、核心参数",
+    quickQuery: "查财务文档",
+  },
+  {
+    id: "brand-division",
+    name: "品牌事业部",
+    owner: "事业部负责人",
+    documentCount: 2144,
+    highSecurityCount: 168,
+    scope: "作品、提案、客户案例、项目复盘",
+    quickQuery: "查经典作品",
+  },
+  {
+    id: "hr",
+    name: "人事部门",
+    owner: "HR 负责人",
+    documentCount: 936,
+    highSecurityCount: 74,
+    scope: "在职档案、离职档案、历史组织架构图",
+    quickQuery: "查人员档案",
+  },
+];
+
+export const historicalOrgImports = [
+  {
+    period: "1998-2006",
+    source: "人事部门导入",
+    fileType: "历史组织架构图",
+    status: "待 OCR 校验",
+  },
+  {
+    period: "2007-2016",
+    source: "人事部门导入",
+    fileType: "部门岗位表",
+    status: "可按部门查文档",
+  },
+  {
+    period: "2017-2026",
+    source: "组织架构系统同步",
+    fileType: "当前组织架构",
+    status: "已接入检索",
+  },
+];
+
+export const accessPolicies = [
+  {
+    level: "L1 普通",
+    browse: "浏览全文",
+    download: "普通授权下载",
+    camera: "不要求摄像头",
+    watermark: "基础水印",
+    approval: "本人或部门授权",
+  },
+  {
+    level: "L2 普通受控",
+    browse: "浏览全文",
+    download: "分级授权下载",
+    camera: "按策略开启",
+    watermark: "动态水印",
+    approval: "部门负责人审批",
+  },
+  {
+    level: "L3 保密",
+    browse: "带底纹浏览",
+    download: "分级授权查看下载",
+    camera: "摄像头开启",
+    watermark: "公众浏览防偷拍",
+    approval: "两级审批",
+  },
+  {
+    level: "L4 最高机密",
+    browse: "仅受控浏览",
+    download: "禁止直接导出",
+    camera: "人脸识别 + 鼠标控制",
+    watermark: "强水印 + 防偷拍",
+    approval: "双人共同查看",
+  },
+  {
+    level: "L6 绝密",
+    browse: "不可浏览",
+    download: "禁止下载原件",
+    camera: "摄像头、人脸识别全程开启",
+    watermark: "仅标题和审批路径",
+    approval: "至少 2 名最高授权人",
+  },
+];
+
 export const progressItems = [
-  { label: "Vue 重构", value: 18, status: "正在推进" },
-  { label: "响应式多端", value: 20, status: "骨架完成中" },
-  { label: "1500 行治理", value: 25, status: "已开始拆分" },
-  { label: "权限分级", value: 35, status: "原型已覆盖" },
+  { label: "Vue 重构", value: 25, status: "组织架构与权限组件推进" },
+  { label: "响应式多端", value: 26, status: "组件布局继续补齐" },
+  { label: "1500 行治理", value: 32, status: "新增 Vue 文件合规" },
+  { label: "权限分级", value: 46, status: "策略矩阵已组件化" },
 ];
 
 export const nextSteps = [

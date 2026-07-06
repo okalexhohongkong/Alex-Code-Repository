@@ -1,12 +1,25 @@
 <script setup>
 import { computed, ref } from "vue";
+import AccessPolicyMatrix from "./components/AccessPolicyMatrix.vue";
 import AppHeader from "./components/AppHeader.vue";
 import DocumentPreview from "./components/DocumentPreview.vue";
+import OrgStructureExplorer from "./components/OrgStructureExplorer.vue";
 import ProgressSnapshot from "./components/ProgressSnapshot.vue";
 import QuickCategoryGrid from "./components/QuickCategoryGrid.vue";
 import SearchCommand from "./components/SearchCommand.vue";
 import SidebarNav from "./components/SidebarNav.vue";
-import { brand, documents, navSections, nextSteps, progressItems, quickCategories, searchModes } from "./data/dashboard";
+import {
+  accessPolicies,
+  brand,
+  documents,
+  historicalOrgImports,
+  navSections,
+  nextSteps,
+  organizationUnits,
+  progressItems,
+  quickCategories,
+  searchModes,
+} from "./data/dashboard";
 
 const activeCategoryId = ref("company");
 const selectedDocumentId = ref(documents[0].id);
@@ -93,6 +106,13 @@ function toggleCategoryHidden(categoryId) {
           :selected-document="selectedDocument"
           @select-document="selectedDocumentId = $event"
         />
+
+        <OrgStructureExplorer
+          :historical-imports="historicalOrgImports"
+          :units="organizationUnits"
+        />
+
+        <AccessPolicyMatrix :policies="accessPolicies" />
 
         <ProgressSnapshot :items="progressItems" :next-steps="nextSteps" />
       </section>

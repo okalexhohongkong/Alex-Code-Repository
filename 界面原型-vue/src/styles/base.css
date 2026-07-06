@@ -291,6 +291,8 @@ button {
 }
 
 .quick-section,
+.org-section,
+.policy-section,
 .progress-section {
   grid-column: 1;
 }
@@ -501,6 +503,148 @@ button {
 
 .progress-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.org-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  margin-bottom: 12px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-subtle);
+}
+
+.org-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
+.org-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.org-card {
+  display: grid;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.org-card-title,
+.mini-heading,
+.policy-row span,
+.policy-row strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.org-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.org-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.org-card dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.org-card dd {
+  margin: 3px 0 0;
+  font-weight: 800;
+}
+
+.org-card button {
+  min-height: 34px;
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  background: #effaf4;
+  color: var(--green);
+  font-weight: 800;
+}
+
+.historical-imports {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-subtle);
+}
+
+.import-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.import-list span {
+  padding: 7px 9px;
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.policy-table {
+  display: grid;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.policy-row {
+  display: grid;
+  grid-template-columns: 110px 120px 150px 170px 150px 150px;
+  gap: 8px;
+  min-width: 860px;
+  align-items: stretch;
+}
+
+.policy-row > * {
+  min-height: 42px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.policy-head > * {
+  background: #111716;
+  color: #fff;
+  font-weight: 800;
+}
+
+.policy-row strong {
+  color: var(--red);
+}
+
+.policy-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .progress-card {
