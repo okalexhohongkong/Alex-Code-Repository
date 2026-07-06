@@ -374,9 +374,9 @@
     <main class="page">
       <header class="hero">
         <div>
-          <p class="eyebrow title-line">项目管理看板｜更新时间 2026-06-28 22:06 <span class="progress-badge ahead">100.0%</span></p>
+          <p class="eyebrow title-line">项目管理看板｜更新时间 2026-07-06 15:10 <span class="progress-badge normal">进行中</span></p>
           <h1 class="title-line">黑卫士 AI 数字档案管理系统实施进度 <span class="progress-badge ahead">100.0%</span></h1>
-          <p>当前演示/单机/桌面封装/远程仓库阶段已闭环；主界面已改为黑卫士稳重绿、窄一级菜单，新增内容检索总目录、档案库分类看板、单一/联合检索、容灾热备份最高权限三人会签、Open cloud agent/Hermes agent/自定义 Agent 接入、多源导入动作审批和多端口权限；真实 40T-60T 全量接入仍等待真实硬盘、NAS、手机、云盘或样本目录。</p>
+          <p>当前演示/单机/桌面封装阶段仍可用；远程私有镜像仓 Alex-Code-Repository 与本地仓保持同步；BG AI DAMS Logo 已完成并接入侧栏与顶部品牌区。下一阶段必须立即推进 Vue 响应式重构和超长文件拆分；真实 40T-60T 全量接入仍等待真实硬盘、NAS、手机、云盘或样本目录。</p>
           <div class="legend">
             <span><span class="progress-badge normal small">88.0%</span> 蓝色跳动：正常推进示例</span>
             <span><span class="progress-badge ahead small">100.0%</span> 绿色：超前或提前完成</span>
@@ -384,8 +384,8 @@
           </div>
         </div>
         <aside class="status-box">
-          <strong>单机闭环完成 <span class="progress-badge ahead">100.0%</span></strong>
-          <span>演示版、单机可用版、桌面可打开封装和远程仓库上传已通过；真实 40T-60T 全量接入仍等待指定目录或硬盘。</span>
+          <strong>镜像与品牌完成 <span class="progress-badge ahead">100.0%</span></strong>
+          <span>Logo 已入仓并接入界面；自动同步每 30 分钟一次。风险：app.js 4323 行、styles.css 5324 行，均超过 1500 行，需要拆分。</span>
         </aside>
       </header>
 
@@ -465,6 +465,14 @@
               <div class="bar done col-5-6">已完成</div>
             </div>
             <div class="task">
+              <div class="task-name">BG AI DAMS Logo 接入 <span class="progress-badge ahead small">100.0%</span></div>
+              <div class="bar done col-5-6">已完成</div>
+            </div>
+            <div class="task">
+              <div class="task-name">Vue 重构与超长文件拆分 <span class="progress-badge stopped small">10.0%</span></div>
+              <div class="bar later col-5-6">立即启动</div>
+            </div>
+            <div class="task">
               <div class="task-name">真实数据接入准备 <span class="progress-badge normal small">96.0%</span></div>
               <div class="bar active col-5-6">正在推进</div>
             </div>
@@ -516,8 +524,18 @@
             </div>
             <div class="card">
               <strong>远程仓库上传 <span class="progress-badge ahead small">100.0%</span></strong>
-              <span>已上传到 GitHub 仓库 okalexhohongkong/aiDigitalArchives，main 分支已建立跟踪；最新增强版保持同步。</span>
+              <span>已切换为私有镜像仓 Alex-Code-Repository，本地与远程同名同步；最新增强版保持同步。</span>
               <div class="progress-line"><span style="width: 100%"></span></div>
+            </div>
+            <div class="card">
+              <strong>BG AI DAMS 品牌资产 <span class="progress-badge ahead small">100.0%</span></strong>
+              <span>已按 Black Guard AI Digital Archive Management System 首字母规则完成 Logo，并接入侧栏与顶部品牌区。</span>
+              <div class="progress-line"><span style="width: 100%"></span></div>
+            </div>
+            <div class="card">
+              <strong>Vue 重构与文件体量治理 <span class="progress-badge stopped small">10.0%</span></strong>
+              <span>Vue 目录和组件拆分尚未真正启动；app.js 4323 行、styles.css 5324 行，均超过 1500 行规范。</span>
+              <div class="progress-line"><span style="width: 10%; background: var(--red)"></span></div>
             </div>
             <div class="card">
               <strong>真实数据接入准备 <span class="progress-badge normal small">96.0%</span></strong>
