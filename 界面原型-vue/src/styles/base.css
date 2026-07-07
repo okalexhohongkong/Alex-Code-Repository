@@ -900,6 +900,53 @@ button {
   background: var(--panel-subtle);
 }
 
+.governance-step-list,
+.governance-gate {
+  display: grid;
+  gap: 6px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-subtle);
+}
+
+.governance-step-list small,
+.governance-gate strong {
+  color: var(--text);
+}
+
+.governance-step-list ol {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.governance-ledger,
+.governance-boundary {
+  padding: 8px;
+  border-radius: var(--radius);
+  background: #effaf4;
+  color: var(--green);
+}
+
+.governance-boundary {
+  background: #fff4df;
+  color: var(--amber);
+}
+
+.governance-card button {
+  min-height: 34px;
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  background: #effaf4;
+  color: var(--green);
+  font-weight: 800;
+}
+
 .governance-flow {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }

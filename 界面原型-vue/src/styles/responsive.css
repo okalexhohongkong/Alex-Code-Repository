@@ -113,7 +113,8 @@
   .index-linkage-strip,
   .permission-ledger,
   .audit-filter-row,
-  .settings-policy-grid {
+  .settings-policy-grid,
+  .governance-ledger {
     overflow-wrap: anywhere;
   }
 

@@ -375,23 +375,41 @@ export const importExportRules = [
     title: "导入必须查毒",
     detail: "所有文件导入先进入隔离区，完成杀毒、格式识别、路径脱敏后再入库。",
     gate: "查毒通过后入库",
+    executionSteps: ["隔离区登记", "查毒扫描", "格式识别", "路径脱敏"],
+    approvalGate: "审批门禁：查毒通过 + 数据管理员确认",
+    governanceLedger: "治理台账：导入仅模拟不执行真实动作",
+    simulationOnly: "仅模拟不执行真实动作",
   },
   {
     title: "导出分级授权",
     detail: "普通文件按角色授权，高级文件需要分级审批，最高机密禁止直接导出原件。",
     gate: "按密级审批",
+    executionSteps: ["密级识别", "导出原因登记", "审批门禁", "水印副本生成"],
+    approvalGate: "审批门禁：L3 以上必须分级授权",
+    governanceLedger: "治理台账：导出申请已留痕",
+    simulationOnly: "仅模拟不执行真实动作",
   },
   {
     title: "双人授权",
     detail: "高级文件、深度价值文件和绝密文件必须至少两名授权人同时确认查看。",
     gate: "双人共同查看",
+    executionSteps: ["第一授权人确认", "第二授权人复核", "摄像头策略检查", "查看窗口开启"],
+    approvalGate: "审批门禁：双人复核通过后继续",
+    governanceLedger: "治理台账：双人授权事件已登记",
+    simulationOnly: "仅模拟不执行真实动作",
   },
   {
     title: "台账留痕",
     detail: "查看、导入、导出、下载和外发均写入每日台账，后续接入积分兑换。",
     gate: "每日审计",
+    executionSteps: ["动作归类", "操作者记录", "审批状态记录", "每日审计汇总"],
+    approvalGate: "审批门禁：缺少台账禁止完成动作",
+    governanceLedger: "治理台账：每日审计汇总待生成",
+    simulationOnly: "仅模拟不执行真实动作",
   },
 ];
+
+export const importExportGovernanceColumns = ["执行步骤", "审批门禁", "治理台账", "仅模拟不执行真实动作"];
 
 export const queryBillingRules = [
   {
@@ -551,15 +569,15 @@ export const auditLedgerEntries = [
 ];
 
 export const progressItems = [
-  { label: "Vue 重构", value: 58, status: "设置中心策略可编辑化推进" },
-  { label: "响应式多端", value: 58, status: "390px 设置策略回归补齐" },
+  { label: "Vue 重构", value: 62, status: "导入导出治理策略可执行化推进" },
+  { label: "响应式多端", value: 62, status: "390px 导入导出治理回归补齐" },
   { label: "1500 行治理", value: 45, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 73, status: "设置策略修改台账已组件化" },
+  { label: "权限分级", value: 76, status: "导入导出审批门禁已组件化" },
 ];
 
 export const nextSteps = [
   "把静态原型核心模块拆成 Vue 组件",
-  "把设置中心策略编辑和修改台账接入统一治理",
-  "继续补齐移动端回归和旧版模块拆迁",
+  "把导入导出治理执行步骤接入统一治理",
+  "继续补齐预览授权策略联动和旧版模块拆迁",
   "将权限、摄像头、人脸识别做成可配置策略",
 ];
