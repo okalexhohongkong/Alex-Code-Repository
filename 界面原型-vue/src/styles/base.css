@@ -349,7 +349,7 @@ button {
 .quick-card {
   display: grid;
   gap: 10px;
-  min-height: 152px;
+  min-height: 198px;
   padding: 14px;
 }
 
@@ -376,6 +376,7 @@ button {
 }
 
 .quick-card p,
+.quick-card small,
 .progress-card p,
 .next-step-list,
 .empty-state {
@@ -389,6 +390,23 @@ button {
   font-size: 20px;
 }
 
+.quick-permission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.quick-permission-grid span {
+  min-height: 30px;
+  padding: 7px 8px;
+  border-radius: var(--radius);
+  background: var(--panel-subtle);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 .quick-card-foot button {
   display: inline-flex;
   align-items: center;
@@ -399,6 +417,32 @@ button {
   background: #fff;
   color: currentColor;
   font-size: 12px;
+}
+
+.permission-ledger {
+  display: grid;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-subtle);
+}
+
+.permission-preset-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.permission-preset-list span {
+  width: fit-content;
+  padding: 7px 9px;
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .tone-black { color: var(--black); }

@@ -107,8 +107,13 @@
   .brand-lockup,
   .section-heading,
   .approval-state-toolbar,
-  .index-linkage-strip {
+  .index-linkage-strip,
+  .permission-ledger {
     overflow-wrap: anywhere;
+  }
+
+  .quick-permission-grid {
+    grid-template-columns: 1fr;
   }
 
   .mode-row button,

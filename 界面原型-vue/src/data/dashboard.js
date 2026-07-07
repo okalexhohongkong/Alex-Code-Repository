@@ -31,6 +31,9 @@ export const quickCategories = [
     scope: "个人资产、决策手稿、重要证照",
     count: 1280,
     access: "授权打开",
+    permissionLevel: "L6 绝密",
+    visibleScope: "仅最高授权人",
+    permissionLedger: "授权台账：双人复核后打开",
     tone: "black",
   },
   {
@@ -39,6 +42,9 @@ export const quickCategories = [
     scope: "家庭合同、证件、影像和资产资料",
     count: 936,
     access: "家庭权限",
+    permissionLevel: "L3 保密",
+    visibleScope: "家庭授权组",
+    permissionLedger: "授权台账：家庭管理员确认",
     tone: "green",
   },
   {
@@ -47,6 +53,9 @@ export const quickCategories = [
     scope: "制度、业务、财务、项目与客户档案",
     count: 8420,
     access: "公司权限",
+    permissionLevel: "L4 最高机密",
+    visibleScope: "公司负责人/部门负责人",
+    permissionLedger: "授权台账：公司权限记录",
     tone: "blue",
   },
   {
@@ -55,6 +64,9 @@ export const quickCategories = [
     scope: "在职人员、岗位、部门协作资料",
     count: 2146,
     access: "部门授权",
+    permissionLevel: "L2 普通受控",
+    visibleScope: "人事部门/直属负责人",
+    permissionLedger: "授权台账：按部门留痕",
     tone: "cyan",
   },
   {
@@ -63,6 +75,9 @@ export const quickCategories = [
     scope: "离职交接、历史项目、保密承诺",
     count: 584,
     access: "审计授权",
+    permissionLevel: "L3 保密",
+    visibleScope: "人事部门/审计角色",
+    permissionLedger: "授权台账：审计授权记录",
     tone: "amber",
   },
   {
@@ -71,6 +86,9 @@ export const quickCategories = [
     scope: "方案、提案、案例、品牌资产",
     count: 678,
     access: "价值授权",
+    permissionLevel: "L4 最高机密",
+    visibleScope: "品牌事业部/最高授权人",
+    permissionLedger: "授权台账：价值资料复核",
     tone: "red",
   },
   {
@@ -79,6 +97,9 @@ export const quickCategories = [
     scope: "合同、回款、招采、争议处理",
     count: 1560,
     access: "法务授权",
+    permissionLevel: "L3 保密",
+    visibleScope: "法务/财务/项目负责人",
+    permissionLedger: "授权台账：合同调阅留痕",
     tone: "violet",
   },
   {
@@ -87,9 +108,19 @@ export const quickCategories = [
     scope: "可自定义新增、隐藏、授权开放",
     count: 0,
     access: "隐藏",
+    permissionLevel: "L1 普通",
+    visibleScope: "管理员可见",
+    permissionLedger: "授权台账：隐藏按钮样例",
     tone: "gray",
     hidden: true,
   },
+];
+
+export const shortcutPermissionPresets = [
+  "快捷按钮权限：新增、隐藏、授权打开均进入授权台账",
+  "授权等级：L1 普通 / 可见范围：全员",
+  "授权等级：L3 保密 / 可见范围：部门负责人",
+  "授权等级：L6 绝密 / 可见范围：最高授权人",
 ];
 
 export const searchModes = ["模糊搜索", "精准搜索", "全文搜索", "组织架构检索"];

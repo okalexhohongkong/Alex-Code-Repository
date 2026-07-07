@@ -29,6 +29,7 @@ import {
   queryBillingRules,
   quickCategories,
   searchModes,
+  shortcutPermissionPresets,
   settingsHubSections,
 } from "./data/dashboard";
 
@@ -77,6 +78,9 @@ function addShortcut() {
     scope: "可按角色授权打开，也可以随时隐藏",
     count: 0,
     access: "授权打开",
+    permissionLevel: "L1 普通",
+    visibleScope: "管理员可见",
+    permissionLedger: "授权台账：新建快捷按钮待审批",
     tone: "green",
   });
 }
@@ -85,6 +89,21 @@ function toggleCategoryHidden(categoryId) {
   localCategories.value = localCategories.value.map((category) =>
     category.id === categoryId ? { ...category, hidden: !category.hidden } : category,
   );
+}
+
+function authorizeShortcut(categoryId) {
+  localCategories.value = localCategories.value.map((category) => {
+    if (category.id !== categoryId) {
+      return category;
+    }
+    return {
+      ...category,
+      access: "已授权打开",
+      permissionLevel: category.permissionLevel || "L3 保密",
+      visibleScope: category.visibleScope || "部门负责人",
+      permissionLedger: `授权台账：${category.title} 已记录授权打开`,
+    };
+  });
 }
 
 function selectIndexDepartment(departmentName) {
@@ -110,8 +129,10 @@ function selectIndexDepartment(departmentName) {
         <QuickCategoryGrid
           :active-id="activeCategoryId"
           :categories="visibleCategories"
+          :permission-presets="shortcutPermissionPresets"
           :show-hidden="showHidden"
           @add-shortcut="addShortcut"
+          @authorize-shortcut="authorizeShortcut"
           @select-category="selectCategory"
           @toggle-hidden="toggleCategoryHidden"
           @toggle-show-hidden="showHidden = !showHidden"

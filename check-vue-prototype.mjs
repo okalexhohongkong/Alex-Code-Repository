@@ -27,12 +27,12 @@ const requiredFiles = [
 const requiredText = [
   ["界面原型-vue/index.html", ["黑卫士 AI 数字档案管理系统", "viewport", "src/main.js"]],
   ["界面原型-vue/src/main.js", ["createApp", "App.vue", "tokens.css", "responsive.css"]],
-  ["界面原型-vue/src/App.vue", ["SidebarNav", "AppHeader", "SearchCommand", "QuickCategoryGrid", "DocumentPreview", "OrgStructureExplorer", "AccessPolicyMatrix", "LocalIndexPanel", "SettingsHub", "ImportExportGovernance", "QueryBillingPanel", "ApprovalWorkflowPanel", "ProgressSnapshot", "selectedIndexDepartment", "selectIndexDepartment"]],
-  ["界面原型-vue/src/data/dashboard.js", ["BG AI DAMS", "老板个人档案", "家庭档案", "公司档案", "在职档案", "离职档案", "经典作品", "合同案例", "模糊搜索", "精准搜索", "全文搜索", "积分兑换", "双人共同查看", "摄像头", "防偷拍水印", "水印", "董事会办公室", "历史组织架构图", "L6 绝密", "不可浏览", "公众浏览防偷拍", "AI 接入", "平台接入", "备份容灾", "导入必须查毒", "导出分级授权", "查询付费", "积分余额", "查看审批", "下载审批", "导出审批", "自动索引", "计费流水", "扣费前余额", "扣费后余额", "密级加权", "待审批", "已通过", "被驳回", "需双人复核"]],
+  ["界面原型-vue/src/App.vue", ["SidebarNav", "AppHeader", "SearchCommand", "QuickCategoryGrid", "DocumentPreview", "OrgStructureExplorer", "AccessPolicyMatrix", "LocalIndexPanel", "SettingsHub", "ImportExportGovernance", "QueryBillingPanel", "ApprovalWorkflowPanel", "ProgressSnapshot", "selectedIndexDepartment", "selectIndexDepartment", "authorizeShortcut", "toggleCategoryHidden"]],
+  ["界面原型-vue/src/data/dashboard.js", ["BG AI DAMS", "老板个人档案", "家庭档案", "公司档案", "在职档案", "离职档案", "经典作品", "合同案例", "模糊搜索", "精准搜索", "全文搜索", "积分兑换", "双人共同查看", "摄像头", "防偷拍水印", "水印", "董事会办公室", "历史组织架构图", "L6 绝密", "不可浏览", "公众浏览防偷拍", "AI 接入", "平台接入", "备份容灾", "导入必须查毒", "导出分级授权", "查询付费", "积分余额", "查看审批", "下载审批", "导出审批", "自动索引", "计费流水", "扣费前余额", "扣费后余额", "密级加权", "待审批", "已通过", "被驳回", "需双人复核", "授权等级", "可见范围", "授权台账", "快捷按钮权限"]],
   ["界面原型-vue/src/components/AppHeader.vue", ["brand.enName", "brand.acronym"]],
   ["界面原型-vue/src/components/SidebarNav.vue", ["section.items", "nav-section-list"]],
   ["界面原型-vue/src/components/SearchCommand.vue", ["modes", "update:mode", "积分兑换"]],
-  ["界面原型-vue/src/components/QuickCategoryGrid.vue", ["授权打开", "隐藏", "新增快捷按钮"]],
+  ["界面原型-vue/src/components/QuickCategoryGrid.vue", ["授权打开", "隐藏", "新增快捷按钮", "授权等级", "可见范围", "授权台账", "快捷按钮权限", "authorize-shortcut", "permissionLedger"]],
   ["界面原型-vue/src/components/DocumentPreview.vue", ["selectedDocument.controls", "control.includes", "授权查看", "分级导出"]],
   ["界面原型-vue/src/components/OrgStructureExplorer.vue", ["公司的组织架构", "按部门查文档", "历史组织架构图", "人事部门导入", "select-department", "索引联动"]],
   ["界面原型-vue/src/components/AccessPolicyMatrix.vue", ["分级授权查看下载", "公众浏览防偷拍", "不可浏览", "双人共同查看"]],
@@ -42,7 +42,7 @@ const requiredText = [
   ["界面原型-vue/src/components/QueryBillingPanel.vue", ["查询积分兑换", "查询付费", "积分余额", "扣费规则", "计费流水", "扣费前余额", "扣费后余额", "密级加权"]],
   ["界面原型-vue/src/components/ApprovalWorkflowPanel.vue", ["权限审批流程", "查看审批", "下载审批", "导出审批", "双人共同查看", "审批状态机", "状态筛选", "statusFilter", "filteredSteps"]],
   ["界面原型-vue/src/components/ProgressSnapshot.vue", ["Vue 重构", "响应式", "1500 行"]],
-  ["界面原型-vue/src/styles/responsive.css", ["@media", "max-width: 900px", "max-width: 390px", "grid-template-columns", "overflow-wrap"]],
+  ["界面原型-vue/src/styles/responsive.css", ["@media", "max-width: 900px", "max-width: 390px", "grid-template-columns", "overflow-wrap", "permission-ledger"]],
 ];
 
 function assertOk(condition, message) {

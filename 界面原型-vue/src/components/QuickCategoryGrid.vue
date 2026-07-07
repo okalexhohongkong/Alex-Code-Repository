@@ -14,9 +14,13 @@ defineProps({
     type: Boolean,
     required: true,
   },
+  permissionPresets: {
+    type: Array,
+    required: true,
+  },
 });
 
-const emit = defineEmits(["add-shortcut", "select-category", "toggle-hidden", "toggle-show-hidden"]);
+const emit = defineEmits(["add-shortcut", "authorize-shortcut", "select-category", "toggle-hidden", "toggle-show-hidden"]);
 </script>
 
 <template>
@@ -49,18 +53,33 @@ const emit = defineEmits(["add-shortcut", "select-category", "toggle-hidden", "t
           <ShieldCheck v-if="category.id === activeId" :size="18" />
         </div>
         <p>{{ category.scope }}</p>
+        <div class="quick-permission-grid" aria-label="快捷按钮权限">
+          <span>授权等级：{{ category.permissionLevel || "L1 普通" }}</span>
+          <span>可见范围：{{ category.visibleScope || "管理员可见" }}</span>
+        </div>
         <div class="quick-card-foot">
           <strong>{{ category.count.toLocaleString("zh-CN") }}</strong>
           <button type="button" @click.stop="emit('toggle-hidden', category.id)">
             <EyeOff :size="15" />
             <span>隐藏</span>
           </button>
-          <button type="button" @click.stop>
+          <button type="button" @click.stop="emit('authorize-shortcut', category.id)">
             <KeyRound :size="15" />
             <span>{{ category.access || "授权打开" }}</span>
           </button>
         </div>
+        <small>{{ category.permissionLedger || "授权台账：待记录" }}</small>
       </article>
+    </div>
+
+    <div class="permission-ledger" aria-label="授权台账">
+      <div class="mini-heading">
+        <KeyRound :size="17" />
+        <strong>授权台账 / 快捷按钮权限</strong>
+      </div>
+      <div class="permission-preset-list">
+        <span v-for="preset in permissionPresets" :key="preset">{{ preset }}</span>
+      </div>
     </div>
   </section>
 </template>
