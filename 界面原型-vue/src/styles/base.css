@@ -839,11 +839,48 @@ button {
 }
 
 .settings-card p,
+.settings-card small,
 .governance-card p {
   margin: 0;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.settings-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.settings-policy-grid label {
+  display: grid;
+  gap: 5px;
+}
+
+.settings-policy-grid label span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.settings-policy-grid input,
+.settings-policy-grid select {
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-subtle);
+  color: var(--text);
+}
+
+.settings-policy-grid button {
+  min-height: 34px;
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  background: #effaf4;
+  color: var(--green);
+  font-weight: 800;
 }
 
 .settings-tags {

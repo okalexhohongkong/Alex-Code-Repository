@@ -323,26 +323,52 @@ export const settingsHubSections = [
     status: "待配置",
     description: "统一管理 Open cloud agent、Hermes agent、自定义 Agent 和模型权限。",
     items: ["模型供应商", "提示词模板", "禁训清单", "AI 修复候选"],
+    enabled: false,
+    policyLevel: "L4 最高机密",
+    approvalRequirement: "最高授权人审批",
+    owner: "AI 管理员",
+    changeLedger: "修改台账：AI 接入策略待配置，不保存真实密钥",
+    secretHandling: "不保存真实密钥",
   },
   {
     title: "平台接入",
     status: "规划中",
     description: "对接 Windows、Mac、Linux、iOS、安卓、小程序、鸿蒙和后台服务。",
     items: ["端口清单", "角色终端", "统一登录", "审计回传"],
+    enabled: false,
+    policyLevel: "L3 保密",
+    approvalRequirement: "平台负责人审批",
+    owner: "平台管理员",
+    changeLedger: "修改台账：平台接入策略待评审",
+    secretHandling: "不保存真实密钥",
   },
   {
     title: "备份容灾",
     status: "原型中",
     description: "管理时间胶囊、克隆机、NAS 热备份、年度增量和视频冷存储。",
     items: ["三人会签", "增量备份", "恢复演练", "灾备台账"],
+    enabled: true,
+    policyLevel: "L6 绝密",
+    approvalRequirement: "三人会签",
+    owner: "容灾负责人",
+    changeLedger: "修改台账：备份容灾策略已进入原型",
+    secretHandling: "不保存真实密钥",
   },
   {
     title: "加密文件策略",
     status: "原型中",
     description: "把核心参数、红色重要文件和高密文档纳入统一加密策略。",
     items: ["核心参数文件", "红色重要文件", "水印策略", "查看授权"],
+    enabled: true,
+    policyLevel: "L6 绝密",
+    approvalRequirement: "双人复核",
+    owner: "安全负责人",
+    changeLedger: "修改台账：加密文件策略已进入原型",
+    secretHandling: "不保存真实密钥",
   },
 ];
+
+export const settingsPolicyColumns = ["策略等级", "审批要求", "责任人", "修改台账", "不保存真实密钥"];
 
 export const importExportRules = [
   {
@@ -525,15 +551,15 @@ export const auditLedgerEntries = [
 ];
 
 export const progressItems = [
-  { label: "Vue 重构", value: 54, status: "快捷按钮权限和审计详情台账推进" },
-  { label: "响应式多端", value: 54, status: "390px 审计台账回归补齐" },
+  { label: "Vue 重构", value: 58, status: "设置中心策略可编辑化推进" },
+  { label: "响应式多端", value: 58, status: "390px 设置策略回归补齐" },
   { label: "1500 行治理", value: 45, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 70, status: "审计详情台账已组件化" },
+  { label: "权限分级", value: 73, status: "设置策略修改台账已组件化" },
 ];
 
 export const nextSteps = [
   "把静态原型核心模块拆成 Vue 组件",
-  "把查看、下载、导出、授权打开统一接入审计台账",
-  "补齐审计筛选和移动端回归",
+  "把设置中心策略编辑和修改台账接入统一治理",
+  "继续补齐移动端回归和旧版模块拆迁",
   "将权限、摄像头、人脸识别做成可配置策略",
 ];

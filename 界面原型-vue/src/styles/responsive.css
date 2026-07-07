@@ -62,6 +62,7 @@
   .approval-flow,
   .audit-summary-grid,
   .audit-filter-row,
+  .settings-policy-grid,
   .metadata-grid {
     grid-template-columns: 1fr;
   }
@@ -111,7 +112,8 @@
   .approval-state-toolbar,
   .index-linkage-strip,
   .permission-ledger,
-  .audit-filter-row {
+  .audit-filter-row,
+  .settings-policy-grid {
     overflow-wrap: anywhere;
   }
 
