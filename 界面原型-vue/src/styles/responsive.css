@@ -95,3 +95,37 @@
     flex: 0 0 42px;
   }
 }
+
+@media (max-width: 390px) {
+  .vue-workspace,
+  .workspace-section,
+  .app-header,
+  .search-command {
+    min-width: 0;
+  }
+
+  .brand-lockup,
+  .section-heading,
+  .approval-state-toolbar,
+  .index-linkage-strip {
+    overflow-wrap: anywhere;
+  }
+
+  .mode-row button,
+  .icon-text-button,
+  .quick-card-foot button,
+  .org-card button {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .nav-section-list {
+    grid-template-columns: 1fr;
+    overflow-x: visible;
+  }
+
+  .billing-ledger-row,
+  .policy-row {
+    min-width: 640px;
+  }
+}

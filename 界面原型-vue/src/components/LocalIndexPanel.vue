@@ -1,6 +1,17 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { Database, FileSearch, ShieldCheck } from "@lucide/vue";
+
+const props = defineProps({
+  selectedDepartment: {
+    type: String,
+    default: "全部部门",
+  },
+  organizationUnits: {
+    type: Array,
+    default: () => [],
+  },
+});
 
 const indexSummary = ref({
   generatedAt: "",
@@ -13,6 +24,7 @@ const loadState = ref("读取中");
 const indexQuery = ref("");
 const securityFilter = ref("全部密级");
 const formatFilter = ref("全部格式");
+const departmentFilter = ref("全部部门");
 
 const securityOptions = computed(() => {
   const levels = new Set(indexSummary.value.archives.map((archive) => archive.securityLevelName).filter(Boolean));
@@ -24,6 +36,22 @@ const formatOptions = computed(() => {
   return ["全部格式", ...formats];
 });
 
+const departmentOptions = computed(() => {
+  const departments = new Set(indexSummary.value.archives.map((archive) => archive.department).filter(Boolean));
+  for (const unit of props.organizationUnits) {
+    if (unit.indexDepartment) {
+      departments.add(unit.indexDepartment);
+    }
+  }
+  return ["全部部门", ...departments];
+});
+
+const linkedUnit = computed(() =>
+  props.organizationUnits.find(
+    (unit) => (unit.indexDepartment || unit.name) === departmentFilter.value,
+  ),
+);
+
 const filteredArchives = computed(() => {
   const query = indexQuery.value.trim().toLowerCase();
   return indexSummary.value.archives.filter((archive) => {
@@ -31,11 +59,20 @@ const filteredArchives = computed(() => {
     const matchesQuery = !query || haystack.includes(query);
     const matchesSecurity = securityFilter.value === "全部密级" || archive.securityLevelName === securityFilter.value;
     const matchesFormat = formatFilter.value === "全部格式" || archive.format === formatFilter.value;
-    return matchesQuery && matchesSecurity && matchesFormat;
+    const matchesDepartment = departmentFilter.value === "全部部门" || archive.department === departmentFilter.value;
+    return matchesQuery && matchesSecurity && matchesFormat && matchesDepartment;
   });
 });
 
 const visibleArchives = computed(() => filteredArchives.value.slice(0, 5));
+
+watch(
+  () => props.selectedDepartment,
+  (nextDepartment) => {
+    departmentFilter.value = nextDepartment || "全部部门";
+  },
+  { immediate: true },
+);
 
 function parseBrowserIndex(text) {
   const match = text.match(/window\.HWS_LOCAL_ARCHIVE_INDEX\s*=\s*(\{[\s\S]*\});?\s*$/);
@@ -90,6 +127,12 @@ onMounted(async () => {
         <input v-model="indexQuery" type="search" placeholder="标题、摘要、部门" />
       </label>
       <label>
+        <span>部门筛选</span>
+        <select v-model="departmentFilter">
+          <option v-for="department in departmentOptions" :key="department">{{ department }}</option>
+        </select>
+      </label>
+      <label>
         <span>密级筛选</span>
         <select v-model="securityFilter">
           <option v-for="level in securityOptions" :key="level">{{ level }}</option>
@@ -107,6 +150,12 @@ onMounted(async () => {
       </div>
     </div>
 
+    <div class="index-linkage-strip">
+      <strong>组织架构联动</strong>
+      <span>{{ linkedUnit ? `${linkedUnit.name} · ${linkedUnit.owner}` : "全部部门" }}</span>
+      <small>本机索引部门：{{ departmentFilter }}</small>
+    </div>
+
     <div class="local-index-list">
       <article v-for="archive in visibleArchives" :key="archive.id" class="local-index-card">
         <div>
@@ -114,8 +163,9 @@ onMounted(async () => {
           <strong>{{ archive.title }}</strong>
         </div>
         <p>{{ archive.subtitle || archive.summary }}</p>
-        <span><ShieldCheck :size="15" />路径脱敏 · hasLocalPath: {{ archive.hasLocalPath ? "服务端受控" : "无本地路径" }}</span>
+        <span><ShieldCheck :size="15" />路径脱敏 · 本机索引部门：{{ archive.department || "未归属" }} · hasLocalPath: {{ archive.hasLocalPath ? "服务端受控" : "无本地路径" }}</span>
       </article>
+      <p v-if="!visibleArchives.length" class="empty-state">当前部门没有匹配的脱敏索引，可切回全部部门或等待人工归属。</p>
     </div>
   </section>
 </template>

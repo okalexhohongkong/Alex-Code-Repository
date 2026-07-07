@@ -13,6 +13,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(["select-department"]);
+
 const orgQuery = ref("");
 
 const filteredUnits = computed(() => {
@@ -51,7 +53,9 @@ const filteredUnits = computed(() => {
           <div><dt>文档数</dt><dd>{{ unit.documentCount.toLocaleString("zh-CN") }}</dd></div>
           <div><dt>高密文件</dt><dd>{{ unit.highSecurityCount.toLocaleString("zh-CN") }}</dd></div>
         </dl>
-        <button type="button">{{ unit.quickQuery || "按部门查文档" }}</button>
+        <button type="button" @click="emit('select-department', unit.indexDepartment || unit.name)">
+          索引联动 · {{ unit.quickQuery || "按部门查文档" }}
+        </button>
       </article>
     </div>
 

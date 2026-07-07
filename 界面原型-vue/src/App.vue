@@ -24,6 +24,8 @@ import {
   nextSteps,
   organizationUnits,
   progressItems,
+  queryBillingAccount,
+  queryBillingLedger,
   queryBillingRules,
   quickCategories,
   searchModes,
@@ -36,6 +38,7 @@ const query = ref("");
 const searchMode = ref(searchModes[0]);
 const showHidden = ref(false);
 const localCategories = ref([...quickCategories]);
+const selectedIndexDepartment = ref("全部部门");
 
 const visibleCategories = computed(() =>
   localCategories.value.filter((category) => showHidden.value || !category.hidden),
@@ -83,6 +86,10 @@ function toggleCategoryHidden(categoryId) {
     category.id === categoryId ? { ...category, hidden: !category.hidden } : category,
   );
 }
+
+function selectIndexDepartment(departmentName) {
+  selectedIndexDepartment.value = departmentName || "全部部门";
+}
 </script>
 
 <template>
@@ -119,17 +126,25 @@ function toggleCategoryHidden(categoryId) {
         <OrgStructureExplorer
           :historical-imports="historicalOrgImports"
           :units="organizationUnits"
+          @select-department="selectIndexDepartment"
         />
 
         <AccessPolicyMatrix :policies="accessPolicies" />
 
-        <LocalIndexPanel />
+        <LocalIndexPanel
+          :organization-units="organizationUnits"
+          :selected-department="selectedIndexDepartment"
+        />
 
         <SettingsHub :sections="settingsHubSections" />
 
         <ImportExportGovernance :rules="importExportRules" />
 
-        <QueryBillingPanel :rules="queryBillingRules" />
+        <QueryBillingPanel
+          :account="queryBillingAccount"
+          :ledger="queryBillingLedger"
+          :rules="queryBillingRules"
+        />
 
         <ApprovalWorkflowPanel :steps="approvalWorkflowSteps" />
 

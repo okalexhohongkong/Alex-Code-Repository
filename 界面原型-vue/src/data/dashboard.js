@@ -171,6 +171,16 @@ export const documents = [
 
 export const organizationUnits = [
   {
+    id: "auto-index",
+    name: "自动索引",
+    owner: "本机扫描",
+    documentCount: 409,
+    highSecurityCount: 0,
+    scope: "archive-index-data.js 真实脱敏索引，尚未人工归属到业务部门的本机文件。",
+    quickQuery: "查本机索引",
+    indexDepartment: "自动索引",
+  },
+  {
     id: "board-office",
     name: "董事会办公室",
     owner: "最高授权人",
@@ -178,6 +188,7 @@ export const organizationUnits = [
     highSecurityCount: 92,
     scope: "董事会决议、战略文件、重大授权记录",
     quickQuery: "按部门查文档",
+    indexDepartment: "董事会办公室",
   },
   {
     id: "finance-center",
@@ -187,6 +198,7 @@ export const organizationUnits = [
     highSecurityCount: 286,
     scope: "预算、回款、发票、税务、核心参数",
     quickQuery: "查财务文档",
+    indexDepartment: "财务中心",
   },
   {
     id: "brand-division",
@@ -196,6 +208,7 @@ export const organizationUnits = [
     highSecurityCount: 168,
     scope: "作品、提案、客户案例、项目复盘",
     quickQuery: "查经典作品",
+    indexDepartment: "品牌事业部",
   },
   {
     id: "hr",
@@ -205,6 +218,7 @@ export const organizationUnits = [
     highSecurityCount: 74,
     scope: "在职档案、离职档案、历史组织架构图",
     quickQuery: "查人员档案",
+    indexDepartment: "人事部门",
   },
 ];
 
@@ -352,39 +366,86 @@ export const queryBillingAccount = {
   debitPolicy: "扣费规则按搜索模式、密级和审批结果执行",
 };
 
+export const queryBillingLedgerColumns = ["查询类型", "密级加权", "扣费积分", "扣费前余额", "扣费后余额"];
+
+export const queryBillingLedger = [
+  {
+    id: "bill-001",
+    queryType: "模糊搜索",
+    securityLevel: "L1 普通",
+    securityWeight: "1.0x 密级加权",
+    pointCost: 1,
+    balanceBefore: 12681,
+    balanceAfter: 12680,
+    resultScope: "标题、摘要、部门",
+  },
+  {
+    id: "bill-002",
+    queryType: "全文搜索",
+    securityLevel: "L3 保密",
+    securityWeight: "2.0x 密级加权",
+    pointCost: 16,
+    balanceBefore: 12697,
+    balanceAfter: 12681,
+    resultScope: "OCR 正文和转写文本",
+  },
+  {
+    id: "bill-003",
+    queryType: "受控预览",
+    securityLevel: "L4 最高机密",
+    securityWeight: "审批通过后扣费",
+    pointCost: 0,
+    balanceBefore: 12697,
+    balanceAfter: 12697,
+    resultScope: "仅标题和审批路径",
+  },
+];
+
 export const approvalWorkflowSteps = [
   {
     title: "查看审批",
     owner: "部门负责人",
     status: "普通/受控文件可走单人审批",
+    workflowStatus: "待审批",
+    nextAction: "部门负责人确认用途后进入查看台账",
+    dualReviewRequired: false,
   },
   {
     title: "下载审批",
     owner: "数据管理员",
     status: "下载进入分级授权和台账留痕",
+    workflowStatus: "已通过",
+    nextAction: "写入下载台账并扣减查询积分",
+    dualReviewRequired: false,
   },
   {
     title: "导出审批",
     owner: "最高授权人",
     status: "高密文件禁止直接导出原件",
+    workflowStatus: "被驳回",
+    nextAction: "改为脱敏摘要或水印副本导出",
+    dualReviewRequired: true,
   },
   {
     title: "双人共同查看",
     owner: "两名最高授权人",
     status: "高级文件和深度价值文件必须双人确认",
+    workflowStatus: "需双人复核",
+    nextAction: "等待第二授权人同屏确认",
+    dualReviewRequired: true,
   },
 ];
 
 export const progressItems = [
-  { label: "Vue 重构", value: 40, status: "索引筛选、计费和审批推进" },
-  { label: "响应式多端", value: 41, status: "组件布局继续补齐" },
+  { label: "Vue 重构", value: 46, status: "组织索引联动、计费流水和审批状态机推进" },
+  { label: "响应式多端", value: 46, status: "390px 移动端回归补齐" },
   { label: "1500 行治理", value: 45, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 60, status: "审批流程已组件化" },
+  { label: "权限分级", value: 64, status: "审批状态机已组件化" },
 ];
 
 export const nextSteps = [
   "把静态原型核心模块拆成 Vue 组件",
-  "补齐移动端、平板端、桌面端布局断点",
-  "接入真实索引数据的只读展示层",
+  "把组织架构部门与真实脱敏索引筛选联动",
+  "补齐计费流水、审批状态机和移动端回归",
   "将权限、摄像头、人脸识别做成可配置策略",
 ];
