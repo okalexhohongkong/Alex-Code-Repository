@@ -311,7 +311,8 @@ button {
 .settings-section,
 .governance-section,
 .billing-section,
-.approval-section {
+.approval-section,
+.audit-section {
   grid-column: 1 / -1;
 }
 
@@ -713,7 +714,9 @@ button {
 .governance-flow,
 .billing-summary,
 .billing-rule-grid,
-.approval-flow {
+.approval-flow,
+.audit-summary-grid,
+.audit-filter-row {
   display: grid;
   gap: 12px;
 }
@@ -1010,6 +1013,87 @@ button {
 .approval-card b {
   background: #fff4df;
   color: var(--amber);
+}
+
+.audit-summary-grid {
+  grid-template-columns: 150px 150px minmax(0, 1fr);
+  margin-bottom: 12px;
+}
+
+.audit-summary-grid div,
+.audit-filter-row label,
+.audit-filter-row div {
+  display: grid;
+  gap: 6px;
+  min-height: 62px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.audit-summary-grid span,
+.audit-filter-row span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.audit-summary-grid strong,
+.audit-filter-row strong {
+  overflow-wrap: anywhere;
+}
+
+.audit-filter-row {
+  grid-template-columns: 180px 180px 140px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.audit-filter-row select {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-subtle);
+  color: var(--text);
+}
+
+.audit-table {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.audit-row {
+  display: grid;
+  grid-template-columns: 95px 150px 220px 110px 130px 280px;
+  gap: 8px;
+  min-width: 1020px;
+}
+
+.audit-row > * {
+  min-height: 40px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.audit-head > * {
+  background: #111716;
+  color: #fff;
+  font-weight: 800;
+}
+
+.audit-row span:nth-child(5) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .progress-card {

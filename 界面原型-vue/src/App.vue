@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import AccessPolicyMatrix from "./components/AccessPolicyMatrix.vue";
 import AppHeader from "./components/AppHeader.vue";
 import ApprovalWorkflowPanel from "./components/ApprovalWorkflowPanel.vue";
+import AuditLedgerPanel from "./components/AuditLedgerPanel.vue";
 import DocumentPreview from "./components/DocumentPreview.vue";
 import ImportExportGovernance from "./components/ImportExportGovernance.vue";
 import LocalIndexPanel from "./components/LocalIndexPanel.vue";
@@ -16,6 +17,8 @@ import SidebarNav from "./components/SidebarNav.vue";
 import {
   accessPolicies,
   approvalWorkflowSteps,
+  auditLedgerEntries,
+  auditLedgerSummary,
   brand,
   documents,
   historicalOrgImports,
@@ -168,6 +171,11 @@ function selectIndexDepartment(departmentName) {
         />
 
         <ApprovalWorkflowPanel :steps="approvalWorkflowSteps" />
+
+        <AuditLedgerPanel
+          :entries="auditLedgerEntries"
+          :summary="auditLedgerSummary"
+        />
 
         <ProgressSnapshot :items="progressItems" :next-steps="nextSteps" />
       </section>

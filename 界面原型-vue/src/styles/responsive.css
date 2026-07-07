@@ -60,6 +60,8 @@
   .billing-summary,
   .billing-rule-grid,
   .approval-flow,
+  .audit-summary-grid,
+  .audit-filter-row,
   .metadata-grid {
     grid-template-columns: 1fr;
   }
@@ -108,7 +110,8 @@
   .section-heading,
   .approval-state-toolbar,
   .index-linkage-strip,
-  .permission-ledger {
+  .permission-ledger,
+  .audit-filter-row {
     overflow-wrap: anywhere;
   }
 
@@ -130,6 +133,7 @@
   }
 
   .billing-ledger-row,
+  .audit-row,
   .policy-row {
     min-width: 640px;
   }

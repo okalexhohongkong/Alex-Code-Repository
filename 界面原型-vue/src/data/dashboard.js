@@ -397,6 +397,7 @@ export const queryBillingAccount = {
   debitPolicy: "扣费规则按搜索模式、密级和审批结果执行",
 };
 
+export const queryBillingLedgerTitle = "计费流水";
 export const queryBillingLedgerColumns = ["查询类型", "密级加权", "扣费积分", "扣费前余额", "扣费后余额"];
 
 export const queryBillingLedger = [
@@ -467,16 +468,72 @@ export const approvalWorkflowSteps = [
   },
 ];
 
+export const auditLedgerSummary = {
+  title: "审计详情台账",
+  totalEvents: 128,
+  riskEvents: 6,
+  retentionPolicy: "查看、下载、导出、授权打开全部留痕",
+};
+
+export const auditLedgerColumns = ["动作类型", "操作者", "对象", "密级", "审批状态", "证据"];
+
+export const auditLedgerEntries = [
+  {
+    id: "audit-001",
+    actionType: "查看",
+    actor: "财务中心 / 王敏",
+    target: "集团年度经营核心参数表",
+    securityLevel: "L6 绝密",
+    approvalStatus: "需双人复核",
+    happenedAt: "2026-07-07 16:42",
+    device: "MacBook Pro 财务专机",
+    evidence: "摄像头、人脸识别、水印均已开启",
+  },
+  {
+    id: "audit-002",
+    actionType: "下载",
+    actor: "数据管理员 / 陈洁",
+    target: "员工入职材料归档模板",
+    securityLevel: "L1 普通",
+    approvalStatus: "已通过",
+    happenedAt: "2026-07-07 16:48",
+    device: "Windows HR-03",
+    evidence: "下载审批和积分扣减均已记录",
+  },
+  {
+    id: "audit-003",
+    actionType: "导出",
+    actor: "品牌事业部 / Alex",
+    target: "经典作品：汽车品牌发布会全案",
+    securityLevel: "L4 最高机密",
+    approvalStatus: "被驳回",
+    happenedAt: "2026-07-07 16:53",
+    device: "Windows 工作站 A17",
+    evidence: "改为水印副本导出申请",
+  },
+  {
+    id: "audit-004",
+    actionType: "授权打开",
+    actor: "最高授权人",
+    target: "老板个人档案",
+    securityLevel: "L6 绝密",
+    approvalStatus: "待审批",
+    happenedAt: "2026-07-07 17:01",
+    device: "授权控制台",
+    evidence: "快捷按钮权限和授权台账已记录",
+  },
+];
+
 export const progressItems = [
-  { label: "Vue 重构", value: 46, status: "组织索引联动、计费流水和审批状态机推进" },
-  { label: "响应式多端", value: 46, status: "390px 移动端回归补齐" },
+  { label: "Vue 重构", value: 54, status: "快捷按钮权限和审计详情台账推进" },
+  { label: "响应式多端", value: 54, status: "390px 审计台账回归补齐" },
   { label: "1500 行治理", value: 45, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 64, status: "审批状态机已组件化" },
+  { label: "权限分级", value: 70, status: "审计详情台账已组件化" },
 ];
 
 export const nextSteps = [
   "把静态原型核心模块拆成 Vue 组件",
-  "把组织架构部门与真实脱敏索引筛选联动",
-  "补齐计费流水、审批状态机和移动端回归",
+  "把查看、下载、导出、授权打开统一接入审计台账",
+  "补齐审计筛选和移动端回归",
   "将权限、摄像头、人脸识别做成可配置策略",
 ];
