@@ -10,8 +10,32 @@ const indexSummary = ref({
   archives: [],
 });
 const loadState = ref("读取中");
+const indexQuery = ref("");
+const securityFilter = ref("全部密级");
+const formatFilter = ref("全部格式");
 
-const visibleArchives = computed(() => indexSummary.value.archives.slice(0, 5));
+const securityOptions = computed(() => {
+  const levels = new Set(indexSummary.value.archives.map((archive) => archive.securityLevelName).filter(Boolean));
+  return ["全部密级", ...levels];
+});
+
+const formatOptions = computed(() => {
+  const formats = new Set(indexSummary.value.archives.map((archive) => archive.format).filter(Boolean));
+  return ["全部格式", ...formats];
+});
+
+const filteredArchives = computed(() => {
+  const query = indexQuery.value.trim().toLowerCase();
+  return indexSummary.value.archives.filter((archive) => {
+    const haystack = `${archive.title || ""} ${archive.subtitle || ""} ${archive.summary || ""} ${archive.department || ""}`.toLowerCase();
+    const matchesQuery = !query || haystack.includes(query);
+    const matchesSecurity = securityFilter.value === "全部密级" || archive.securityLevelName === securityFilter.value;
+    const matchesFormat = formatFilter.value === "全部格式" || archive.format === formatFilter.value;
+    return matchesQuery && matchesSecurity && matchesFormat;
+  });
+});
+
+const visibleArchives = computed(() => filteredArchives.value.slice(0, 5));
 
 function parseBrowserIndex(text) {
   const match = text.match(/window\.HWS_LOCAL_ARCHIVE_INDEX\s*=\s*(\{[\s\S]*\});?\s*$/);
@@ -58,6 +82,29 @@ onMounted(async () => {
       <div><span>根目录</span><strong>{{ indexSummary.rootLabel }}</strong></div>
       <div><span>文件数</span><strong>{{ indexSummary.totalFiles.toLocaleString("zh-CN") }}</strong></div>
       <div><span>总大小</span><strong>{{ indexSummary.totalSizeLabel }}</strong></div>
+    </div>
+
+    <div class="index-filter-row" aria-label="关键词搜索和筛选">
+      <label>
+        <span>关键词搜索</span>
+        <input v-model="indexQuery" type="search" placeholder="标题、摘要、部门" />
+      </label>
+      <label>
+        <span>密级筛选</span>
+        <select v-model="securityFilter">
+          <option v-for="level in securityOptions" :key="level">{{ level }}</option>
+        </select>
+      </label>
+      <label>
+        <span>格式筛选</span>
+        <select v-model="formatFilter">
+          <option v-for="format in formatOptions" :key="format">{{ format }}</option>
+        </select>
+      </label>
+      <div>
+        <span>匹配结果</span>
+        <strong>{{ filteredArchives.length.toLocaleString("zh-CN") }}</strong>
+      </div>
     </div>
 
     <div class="local-index-list">

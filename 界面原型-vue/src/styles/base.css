@@ -304,7 +304,9 @@ button {
 }
 
 .settings-section,
-.governance-section {
+.governance-section,
+.billing-section,
+.approval-section {
   grid-column: 1 / -1;
 }
 
@@ -654,8 +656,12 @@ button {
 }
 
 .index-summary-grid,
+.index-filter-row,
 .settings-grid,
-.governance-flow {
+.governance-flow,
+.billing-summary,
+.billing-rule-grid,
+.approval-flow {
   display: grid;
   gap: 12px;
 }
@@ -682,6 +688,34 @@ button {
 .index-summary-grid strong {
   display: block;
   margin-top: 5px;
+}
+
+.index-filter-row {
+  grid-template-columns: minmax(220px, 1fr) 180px 160px 120px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.index-filter-row label,
+.index-filter-row div {
+  display: grid;
+  gap: 6px;
+  min-height: 64px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.index-filter-row input,
+.index-filter-row select {
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel-subtle);
+  color: var(--text);
 }
 
 .local-index-list {
@@ -754,6 +788,58 @@ button {
 
 .governance-flow {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.billing-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+
+.billing-summary div {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.billing-summary strong {
+  font-size: 20px;
+}
+
+.billing-rule-grid,
+.approval-flow {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.billing-rule-card,
+.approval-card {
+  display: grid;
+  gap: 9px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.billing-rule-card span,
+.approval-card span {
+  width: fit-content;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  background: #fff8e6;
+  color: #7a4c00;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.billing-rule-card p,
+.approval-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .progress-card {

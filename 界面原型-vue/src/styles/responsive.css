@@ -54,8 +54,12 @@
 
   .preview-layout,
   .index-summary-grid,
+  .index-filter-row,
   .settings-grid,
   .governance-flow,
+  .billing-summary,
+  .billing-rule-grid,
+  .approval-flow,
   .metadata-grid {
     grid-template-columns: 1fr;
   }

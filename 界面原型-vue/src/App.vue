@@ -2,17 +2,20 @@
 import { computed, ref } from "vue";
 import AccessPolicyMatrix from "./components/AccessPolicyMatrix.vue";
 import AppHeader from "./components/AppHeader.vue";
+import ApprovalWorkflowPanel from "./components/ApprovalWorkflowPanel.vue";
 import DocumentPreview from "./components/DocumentPreview.vue";
 import ImportExportGovernance from "./components/ImportExportGovernance.vue";
 import LocalIndexPanel from "./components/LocalIndexPanel.vue";
 import OrgStructureExplorer from "./components/OrgStructureExplorer.vue";
 import ProgressSnapshot from "./components/ProgressSnapshot.vue";
+import QueryBillingPanel from "./components/QueryBillingPanel.vue";
 import QuickCategoryGrid from "./components/QuickCategoryGrid.vue";
 import SearchCommand from "./components/SearchCommand.vue";
 import SettingsHub from "./components/SettingsHub.vue";
 import SidebarNav from "./components/SidebarNav.vue";
 import {
   accessPolicies,
+  approvalWorkflowSteps,
   brand,
   documents,
   historicalOrgImports,
@@ -21,6 +24,7 @@ import {
   nextSteps,
   organizationUnits,
   progressItems,
+  queryBillingRules,
   quickCategories,
   searchModes,
   settingsHubSections,
@@ -124,6 +128,10 @@ function toggleCategoryHidden(categoryId) {
         <SettingsHub :sections="settingsHubSections" />
 
         <ImportExportGovernance :rules="importExportRules" />
+
+        <QueryBillingPanel :rules="queryBillingRules" />
+
+        <ApprovalWorkflowPanel :steps="approvalWorkflowSteps" />
 
         <ProgressSnapshot :items="progressItems" :next-steps="nextSteps" />
       </section>

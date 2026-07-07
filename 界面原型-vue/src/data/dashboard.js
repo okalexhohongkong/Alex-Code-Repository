@@ -322,11 +322,64 @@ export const importExportRules = [
   },
 ];
 
+export const queryBillingRules = [
+  {
+    title: "模糊搜索",
+    cost: "1 积分/次",
+    scene: "用于标题、摘要、部门和路径脱敏标签的查询付费快速查询。",
+  },
+  {
+    title: "精准搜索",
+    cost: "3 积分/次",
+    scene: "用于档案编号、合同编号、项目名称等精准命中。",
+  },
+  {
+    title: "全文搜索",
+    cost: "8 积分/次",
+    scene: "用于 OCR、转写文本和正文内容检索。",
+  },
+  {
+    title: "受控预览",
+    cost: "按密级审批后扣费",
+    scene: "用于保密、最高机密、绝密文档的授权查看。",
+  },
+];
+
+export const queryBillingAccount = {
+  title: "积分余额",
+  balance: 12680,
+  paymentMode: "查询付费",
+  debitPolicy: "扣费规则按搜索模式、密级和审批结果执行",
+};
+
+export const approvalWorkflowSteps = [
+  {
+    title: "查看审批",
+    owner: "部门负责人",
+    status: "普通/受控文件可走单人审批",
+  },
+  {
+    title: "下载审批",
+    owner: "数据管理员",
+    status: "下载进入分级授权和台账留痕",
+  },
+  {
+    title: "导出审批",
+    owner: "最高授权人",
+    status: "高密文件禁止直接导出原件",
+  },
+  {
+    title: "双人共同查看",
+    owner: "两名最高授权人",
+    status: "高级文件和深度价值文件必须双人确认",
+  },
+];
+
 export const progressItems = [
-  { label: "Vue 重构", value: 32, status: "真实索引和治理组件推进" },
-  { label: "响应式多端", value: 34, status: "组件布局继续补齐" },
-  { label: "1500 行治理", value: 38, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 52, status: "策略和导入导出治理已组件化" },
+  { label: "Vue 重构", value: 40, status: "索引筛选、计费和审批推进" },
+  { label: "响应式多端", value: 41, status: "组件布局继续补齐" },
+  { label: "1500 行治理", value: 45, status: "新增 Vue 文件合规" },
+  { label: "权限分级", value: 60, status: "审批流程已组件化" },
 ];
 
 export const nextSteps = [
