@@ -15,6 +15,27 @@ const props = defineProps({
 
 const emit = defineEmits(["preview-audit", "select-document"]);
 const activePreviewPolicy = ref({});
+const controlPolicyList = ref([]);
+const controlPolicyLedger = ref("策略台账：等待模拟切换，仅模拟策略不调用摄像头/人脸识别");
+
+function policyTitleFor(control) {
+  if (control.includes("摄像头")) {
+    return "摄像头策略";
+  }
+  if (control.includes("人脸")) {
+    return "人脸识别策略";
+  }
+  if (control.includes("水印")) {
+    return "水印策略";
+  }
+  if (control.includes("鼠标")) {
+    return "鼠标控制策略";
+  }
+  if (control.includes("双人")) {
+    return "双人查看策略";
+  }
+  return `${control}策略`;
+}
 
 watch(
   () => props.selectedDocument,
@@ -27,9 +48,22 @@ watch(
       simulationOnly: "仅模拟授权不打开真实文件",
       ...(document.previewPolicy || {}),
     };
+    controlPolicyList.value = document.controls.map((control) => ({
+      label: policyTitleFor(control),
+      source: control,
+      enabled: true,
+      guardrail: "仅模拟策略不调用摄像头/人脸识别",
+    }));
+    controlPolicyLedger.value = `策略台账：${document.title} 安全控制策略待模拟切换`;
   },
   { immediate: true },
 );
+
+function toggleControlPolicy(policy) {
+  policy.enabled = !policy.enabled;
+  const status = policy.enabled ? "已模拟启用" : "已模拟停用";
+  controlPolicyLedger.value = `策略台账：${policy.label} ${status}，仅模拟策略不调用摄像头/人脸识别`;
+}
 
 function simulatePreviewAuthorization(actionLabel) {
   const isExport = actionLabel.includes("导出");
@@ -107,6 +141,19 @@ function simulatePreviewAuthorization(actionLabel) {
             {{ control }}
           </span>
         </div>
+
+        <div class="control-policy-grid" aria-label="摄像头/人脸/水印策略配置化">
+          <article v-for="policy in controlPolicyList" :key="policy.label" class="control-policy-card">
+            <strong>{{ policy.label }}</strong>
+            <span>{{ policy.source }}</span>
+            <small>{{ policy.guardrail }}</small>
+            <button type="button" @click="toggleControlPolicy(policy)">
+              模拟切换：{{ policy.enabled ? "启用" : "停用" }}
+            </button>
+          </article>
+        </div>
+
+        <p class="control-policy-ledger">{{ controlPolicyLedger }}</p>
 
         <div class="preview-policy-grid" aria-label="预览授权策略联动">
           <div class="preview-policy-panel">

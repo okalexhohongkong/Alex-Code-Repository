@@ -559,6 +559,48 @@ button {
   color: var(--green);
 }
 
+.control-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.control-policy-card {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.control-policy-card span,
+.control-policy-card small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.control-policy-card button {
+  min-height: 32px;
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  background: #effaf4;
+  color: var(--green);
+  font-weight: 800;
+}
+
+.control-policy-ledger {
+  margin: 0;
+  padding: 9px;
+  border-radius: var(--radius);
+  background: #fff4df;
+  color: var(--amber);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .preview-policy-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

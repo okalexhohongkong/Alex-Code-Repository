@@ -63,6 +63,7 @@
   .audit-summary-grid,
   .audit-filter-row,
   .settings-policy-grid,
+  .control-policy-grid,
   .preview-policy-grid,
   .metadata-grid {
     grid-template-columns: 1fr;
@@ -116,6 +117,8 @@
   .audit-filter-row,
   .settings-policy-grid,
   .governance-ledger,
+  .control-policy-grid,
+  .control-policy-ledger,
   .preview-policy-grid,
   .preview-audit-ledger {
     overflow-wrap: anywhere;

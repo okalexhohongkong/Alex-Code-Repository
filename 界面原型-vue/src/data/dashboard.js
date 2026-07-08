@@ -596,16 +596,25 @@ export const auditLedgerEntries = [
   },
 ];
 
+export const securityControlPolicyColumns = [
+  "摄像头/人脸/水印策略配置化",
+  "预览授权审计联动",
+  "仅记录模拟审计不触碰真实文件",
+  "策略台账",
+  "模拟切换",
+  "仅模拟策略不调用摄像头/人脸识别",
+];
+
 export const progressItems = [
-  { label: "Vue 重构", value: 70, status: "预览授权审计联动推进" },
-  { label: "响应式多端", value: 70, status: "390px 预览审计回归补齐" },
+  { label: "Vue 重构", value: 74, status: "摄像头/人脸/水印策略配置化推进" },
+  { label: "响应式多端", value: 74, status: "390px 安全策略回归补齐" },
   { label: "1500 行治理", value: 45, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 83, status: "预览授权审计台账已组件化" },
+  { label: "权限分级", value: 86, status: "安全控制策略台账已组件化" },
 ];
 
 export const nextSteps = [
   "把静态原型核心模块拆成 Vue 组件",
-  "把预览授权审计联动接入统一治理",
-  "仅记录模拟审计不触碰真实文件",
-  "将权限、摄像头、人脸识别做成可配置策略",
+  "把摄像头/人脸/水印策略配置化接入统一治理",
+  "仅模拟策略不调用摄像头/人脸识别",
+  "继续拆迁旧版超长文件并保持 1500 行限制",
 ];
