@@ -63,6 +63,7 @@
   .audit-summary-grid,
   .audit-filter-row,
   .settings-policy-grid,
+  .preview-policy-grid,
   .metadata-grid {
     grid-template-columns: 1fr;
   }
@@ -114,7 +115,9 @@
   .permission-ledger,
   .audit-filter-row,
   .settings-policy-grid,
-  .governance-ledger {
+  .governance-ledger,
+  .preview-policy-grid,
+  .preview-audit-ledger {
     overflow-wrap: anywhere;
   }
 

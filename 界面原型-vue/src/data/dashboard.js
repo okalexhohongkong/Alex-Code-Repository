@@ -143,6 +143,13 @@ export const documents = [
     ipAddress: "10.8.12.46",
     coordinate: "上海总部 31.2304, 121.4737",
     controls: ["双人共同查看", "摄像头", "人脸识别", "鼠标控制", "防偷拍水印"],
+    previewPolicy: {
+      title: "预览授权策略联动",
+      prerequisites: ["授权前置条件：至少 2 名最高授权人", "摄像头全程开启", "人脸识别通过", "防偷拍水印开启"],
+      safetyBoundary: "预览安全边界：不可浏览原文，仅显示标题和审批路径",
+      previewAuditLedger: "预览授权台账：L6 绝密文件等待双人复核",
+      simulationOnly: "仅模拟授权不打开真实文件",
+    },
   },
   {
     id: "doc-002",
@@ -161,6 +168,13 @@ export const documents = [
     ipAddress: "172.16.6.29",
     coordinate: "北京项目室 39.9042, 116.4074",
     controls: ["双人共同查看", "摄像头", "人脸识别", "防偷拍水印"],
+    previewPolicy: {
+      title: "预览授权策略联动",
+      prerequisites: ["授权前置条件：事业部负责人 + 最高授权人", "摄像头开启", "人脸识别通过", "禁止下载原件"],
+      safetyBoundary: "预览安全边界：带底纹浏览，导出仅允许水印副本",
+      previewAuditLedger: "预览授权台账：L4 最高机密等待分级审批",
+      simulationOnly: "仅模拟授权不打开真实文件",
+    },
   },
   {
     id: "doc-003",
@@ -179,6 +193,13 @@ export const documents = [
     ipAddress: "192.168.31.82",
     coordinate: "家庭网络",
     controls: ["水印", "查看台账"],
+    previewPolicy: {
+      title: "预览授权策略联动",
+      prerequisites: ["授权前置条件：家庭管理员确认", "动态水印开启", "查看原因登记"],
+      safetyBoundary: "预览安全边界：浏览全文但下载需家庭授权",
+      previewAuditLedger: "预览授权台账：L3 保密文件等待家庭权限确认",
+      simulationOnly: "仅模拟授权不打开真实文件",
+    },
   },
   {
     id: "doc-004",
@@ -197,6 +218,13 @@ export const documents = [
     ipAddress: "10.8.3.15",
     coordinate: "人事办公室",
     controls: ["查看台账"],
+    previewPolicy: {
+      title: "预览授权策略联动",
+      prerequisites: ["授权前置条件：本人或部门授权", "查看台账登记"],
+      safetyBoundary: "预览安全边界：普通文件可浏览全文，不触发导出原件",
+      previewAuditLedger: "预览授权台账：L1 普通文件待记录查看动作",
+      simulationOnly: "仅模拟授权不打开真实文件",
+    },
   },
 ];
 
@@ -569,15 +597,15 @@ export const auditLedgerEntries = [
 ];
 
 export const progressItems = [
-  { label: "Vue 重构", value: 62, status: "导入导出治理策略可执行化推进" },
-  { label: "响应式多端", value: 62, status: "390px 导入导出治理回归补齐" },
+  { label: "Vue 重构", value: 66, status: "预览授权策略联动推进" },
+  { label: "响应式多端", value: 66, status: "390px 预览授权回归补齐" },
   { label: "1500 行治理", value: 45, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 76, status: "导入导出审批门禁已组件化" },
+  { label: "权限分级", value: 80, status: "预览授权台账已组件化" },
 ];
 
 export const nextSteps = [
   "把静态原型核心模块拆成 Vue 组件",
-  "把导入导出治理执行步骤接入统一治理",
-  "继续补齐预览授权策略联动和旧版模块拆迁",
+  "把预览授权动作接入统一审计台账",
+  "继续补齐授权策略联动和旧版模块拆迁",
   "将权限、摄像头、人脸识别做成可配置策略",
 ];

@@ -1,7 +1,8 @@
 <script setup>
-import { Camera, Clock3, Download, Eye, FileText, MousePointer2, ScanFace, Users } from "@lucide/vue";
+import { ref, watch } from "vue";
+import { Camera, Clock3, Download, Eye, FileText, MousePointer2, ScanFace, ShieldCheck, Users } from "@lucide/vue";
 
-defineProps({
+const props = defineProps({
   documents: {
     type: Array,
     required: true,
@@ -13,6 +14,31 @@ defineProps({
 });
 
 const emit = defineEmits(["select-document"]);
+const activePreviewPolicy = ref({});
+
+watch(
+  () => props.selectedDocument,
+  (document) => {
+    activePreviewPolicy.value = {
+      title: "预览授权策略联动",
+      prerequisites: [],
+      safetyBoundary: "预览安全边界：仅展示授权策略，不打开真实文件",
+      previewAuditLedger: "预览授权台账：等待模拟动作",
+      simulationOnly: "仅模拟授权不打开真实文件",
+      ...(document.previewPolicy || {}),
+    };
+  },
+  { immediate: true },
+);
+
+function simulatePreviewAuthorization(actionLabel) {
+  const isExport = actionLabel.includes("导出");
+  const actionResult = isExport ? "已模拟分级导出，未导出真实文件" : "已模拟授权查看，未打开真实文件";
+  activePreviewPolicy.value = {
+    ...activePreviewPolicy.value,
+    previewAuditLedger: `预览授权台账：${props.selectedDocument.title} ${actionResult}`,
+  };
+}
 </script>
 
 <template>
@@ -73,12 +99,32 @@ const emit = defineEmits(["select-document"]);
           </span>
         </div>
 
+        <div class="preview-policy-grid" aria-label="预览授权策略联动">
+          <div class="preview-policy-panel">
+            <strong>
+              <ShieldCheck :size="16" />
+              {{ activePreviewPolicy.title }}
+            </strong>
+            <small>授权前置条件</small>
+            <ul>
+              <li v-for="item in activePreviewPolicy.prerequisites" :key="item">{{ item }}</li>
+            </ul>
+          </div>
+          <div class="preview-policy-panel">
+            <strong>预览安全边界</strong>
+            <p>{{ activePreviewPolicy.safetyBoundary }}</p>
+            <small>{{ activePreviewPolicy.simulationOnly }}</small>
+          </div>
+        </div>
+
+        <p class="preview-audit-ledger">{{ activePreviewPolicy.previewAuditLedger }}</p>
+
         <div class="preview-actions">
-          <button class="primary-action" type="button">
+          <button class="primary-action" type="button" @click="simulatePreviewAuthorization('授权查看')">
             <Eye :size="18" />
             <span>授权查看</span>
           </button>
-          <button class="secondary-action" type="button">
+          <button class="secondary-action" type="button" @click="simulatePreviewAuthorization('分级导出')">
             <Download :size="18" />
             <span>分级导出</span>
           </button>
