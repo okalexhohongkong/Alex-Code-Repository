@@ -597,15 +597,15 @@ export const auditLedgerEntries = [
 ];
 
 export const progressItems = [
-  { label: "Vue 重构", value: 66, status: "预览授权策略联动推进" },
-  { label: "响应式多端", value: 66, status: "390px 预览授权回归补齐" },
+  { label: "Vue 重构", value: 70, status: "预览授权审计联动推进" },
+  { label: "响应式多端", value: 70, status: "390px 预览审计回归补齐" },
   { label: "1500 行治理", value: 45, status: "新增 Vue 文件合规" },
-  { label: "权限分级", value: 80, status: "预览授权台账已组件化" },
+  { label: "权限分级", value: 83, status: "预览授权审计台账已组件化" },
 ];
 
 export const nextSteps = [
   "把静态原型核心模块拆成 Vue 组件",
-  "把预览授权动作接入统一审计台账",
-  "继续补齐授权策略联动和旧版模块拆迁",
+  "把预览授权审计联动接入统一治理",
+  "仅记录模拟审计不触碰真实文件",
   "将权限、摄像头、人脸识别做成可配置策略",
 ];

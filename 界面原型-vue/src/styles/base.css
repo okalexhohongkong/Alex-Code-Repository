@@ -1155,6 +1155,18 @@ button {
   margin-bottom: 12px;
 }
 
+.audit-safety-note {
+  margin: 0 0 12px;
+  padding: 9px;
+  border-radius: var(--radius);
+  background: #effaf4;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .audit-summary-grid div,
 .audit-filter-row label,
 .audit-filter-row div {

@@ -33,10 +33,12 @@ const filteredEntries = computed(() =>
     <div class="section-heading">
       <div>
         <p class="eyebrow">审计详情台账</p>
-        <h2>查看、下载、导出、授权打开统一留痕</h2>
+        <h2>查看、下载、导出、授权打开、预览授权审计联动统一留痕</h2>
       </div>
       <ClipboardList :size="22" />
     </div>
+
+    <p class="audit-safety-note">仅记录模拟审计不触碰真实文件</p>
 
     <div class="audit-summary-grid">
       <div><span>总事件</span><strong>{{ summary.totalEvents.toLocaleString("zh-CN") }}</strong></div>

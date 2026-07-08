@@ -42,6 +42,7 @@ const query = ref("");
 const searchMode = ref(searchModes[0]);
 const showHidden = ref(false);
 const localCategories = ref([...quickCategories]);
+const localAuditEntries = ref([...auditLedgerEntries]);
 const selectedIndexDepartment = ref("全部部门");
 
 const visibleCategories = computed(() =>
@@ -64,6 +65,11 @@ const filteredDocuments = computed(() => {
 const selectedDocument = computed(
   () => filteredDocuments.value.find((document) => document.id === selectedDocumentId.value) || filteredDocuments.value[0] || documents[0],
 );
+
+const auditSummary = computed(() => ({
+  ...auditLedgerSummary,
+  totalEvents: auditLedgerSummary.totalEvents + localAuditEntries.value.length - auditLedgerEntries.length,
+}));
 
 function selectCategory(categoryId) {
   activeCategoryId.value = categoryId;
@@ -112,6 +118,17 @@ function authorizeShortcut(categoryId) {
 function selectIndexDepartment(departmentName) {
   selectedIndexDepartment.value = departmentName || "全部部门";
 }
+
+function recordPreviewAudit(entry) {
+  localAuditEntries.value = [
+    {
+      id: `preview-audit-${localAuditEntries.value.length + 1}`,
+      happenedAt: "本地模拟时间",
+      ...entry,
+    },
+    ...localAuditEntries.value,
+  ];
+}
 </script>
 
 <template>
@@ -144,6 +161,7 @@ function selectIndexDepartment(departmentName) {
         <DocumentPreview
           :documents="filteredDocuments"
           :selected-document="selectedDocument"
+          @preview-audit="recordPreviewAudit"
           @select-document="selectedDocumentId = $event"
         />
 
@@ -173,8 +191,8 @@ function selectIndexDepartment(departmentName) {
         <ApprovalWorkflowPanel :steps="approvalWorkflowSteps" />
 
         <AuditLedgerPanel
-          :entries="auditLedgerEntries"
-          :summary="auditLedgerSummary"
+          :entries="localAuditEntries"
+          :summary="auditSummary"
         />
 
         <ProgressSnapshot :items="progressItems" :next-steps="nextSteps" />

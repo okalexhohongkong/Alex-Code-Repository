@@ -13,7 +13,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["select-document"]);
+const emit = defineEmits(["preview-audit", "select-document"]);
 const activePreviewPolicy = ref({});
 
 watch(
@@ -38,6 +38,15 @@ function simulatePreviewAuthorization(actionLabel) {
     ...activePreviewPolicy.value,
     previewAuditLedger: `预览授权台账：${props.selectedDocument.title} ${actionResult}`,
   };
+  emit("preview-audit", {
+    actionType: isExport ? "预览导出" : "预览授权",
+    actor: "预览授权模拟器",
+    target: props.selectedDocument.title,
+    securityLevel: props.selectedDocument.securityLevel,
+    approvalStatus: isExport ? "待审批" : "已通过",
+    device: "Vue 前端本地模拟",
+    evidence: `${actionResult}；仅记录模拟审计不触碰真实文件`,
+  });
 }
 </script>
 
